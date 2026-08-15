@@ -1,15 +1,15 @@
 <template>
   <FullScreenLayout>
-    <Head :title="`${title} · Biocerra`" />
+    <Head :title="`${title} · ${appName}`" />
 
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header class="border-b border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
         <div class="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <Link href="/" class="flex items-center gap-2.5">
             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[#42AAAB] text-white">
-              <HeartPulse class="h-5 w-5" />
+              <Building2 class="h-5 w-5" />
             </span>
-            <span class="text-lg font-semibold text-gray-800 dark:text-white">Biocerra</span>
+            <span class="text-lg font-semibold text-gray-800 dark:text-white">{{ appName }}</span>
           </Link>
           <div class="flex items-center gap-4">
             <Link href="/" class="text-sm font-medium text-gray-500 transition hover:text-[#358C8D] dark:text-gray-400 dark:hover:text-[#42AAAB]">
@@ -40,19 +40,21 @@
       </main>
 
       <footer class="border-t border-gray-100 py-8 text-center text-xs text-gray-400 dark:border-gray-800">
-        &copy; {{ year }} Biocerra. Todos los derechos reservados.
+        &copy; {{ year }} {{ appName }}. Todos los derechos reservados.
       </footer>
     </div>
   </FullScreenLayout>
 </template>
 
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import ThemeToggler from '@/components/common/ThemeToggler.vue'
-import { HeartPulse, Lock } from 'lucide-vue-next'
+import { Building2, Lock } from 'lucide-vue-next'
 
 defineProps<{ title: string; lastUpdated: string }>()
 
+const page = usePage()
+const appName = page.props.name as string
 const year = new Date().getFullYear()
 </script>

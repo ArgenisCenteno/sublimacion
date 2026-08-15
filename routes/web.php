@@ -1,25 +1,15 @@
 <?php
 
-use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AlertController;
-use App\Http\Controllers\MuestraController;
-use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\OperationsAccessController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\OrdenTrabajoController;
-use App\Http\Controllers\PacienteController;
-use App\Http\Controllers\PagoController;
-use App\Http\Controllers\PdfController;
-use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProviderController;
-use App\Http\Controllers\ResultadoController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\TasaCambioController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WorkshopOrderController;
@@ -64,70 +54,9 @@ Route::prefix('operaciones')->controller(OperationsAccessController::class)->gro
     Route::post('recepcion/release-vehicle', 'releaseRecepcionVehicle')->name('ops.recepcion.release-vehicle');
 });
 
-Route::prefix('recepcion/ordenes/{orden}')->name('recepcion.ordenes.')->group(function () {
-    Route::get('cobrar', [PagoController::class, 'create'])->name('cobrar');
-    Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
-    Route::delete('pagos/{pago}', [PagoController::class, 'destroy'])->name('pagos.destroy');
-    Route::post('pagos/{pago}/anular', [PagoController::class, 'anular'])->name('pagos.anular');
-});
-Route::get('recepcion/pagos', [PagoController::class, 'index'])->name('recepcion.pagos.index');
-Route::get('recepcion/pagos/{id}', [PagoController::class, 'show'])->name('recepcion.pagos.show');
-
-Route::put('configuracion/tasas/{divisa}', [TasaCambioController::class, 'update'])
-    ->name('tasas.update');
-
-Route::prefix('recepcion')->controller(OperationsAccessController::class)->group(function () {
-    Route::resource('pacientes', PacienteController::class);
-
-    Route::resource('ordenes', OrdenTrabajoController::class);
-    Route::patch('ordenes/{id}/entregar', [OrdenTrabajoController::class, 'marcarEntregado']) ->name('ordenes.marcar-entregado');
-
-
-})->middleware('auth');
-Route::prefix('catalogo')->controller(OperationsAccessController::class)->group(function () {
-    Route::resource('examenes', CatalogoController::class);
-    Route::patch('examenes/{examen}/toggle-activo', [CatalogoController::class, 'toggleActivo'])
-        ->name('examenes.toggle-activo');
-    Route::resource('medicos', MedicoController::class);
-    Route::patch('medicos/{medico}/toggle-activo', [MedicoController::class, 'toggleActivo'])
-        ->name('medicos.toggle-activo');
-    Route::get('medicos/buscar', [MedicoController::class, 'buscar'])
-        ->name('medicos.buscar');
-
-    Route::resource('perfiles', PerfilController::class);
-
-})->middleware('auth');
 // Rutas protegidas
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
-Route::get('resultados/{orden}/pdf', [PdfController::class, 'resultados'])->name('resultados.pdf');
-Route::get('ordenes/{orden}/pdf',    [PdfController::class, 'orden'])->name('ordenes.pdf');
-    Route::get('muestras', [MuestraController::class, 'index'])
-        ->name('muestras.index');
-    Route::get('muestras/{orden}', [MuestraController::class, 'show'])
-        ->name('muestras.show');
-    Route::post('muestras/{orden}/generar', [MuestraController::class, 'generar'])
-        ->name('muestras.generar');
-    Route::patch('muestras/{orden}/{muestra}/registrar-toma', [MuestraController::class, 'registrarToma'])
-        ->name('muestras.registrar-toma');
-    Route::patch('muestras/{orden}/{muestra}/rechazar', [MuestraController::class, 'rechazar'])
-        ->name('muestras.rechazar');
-    Route::patch('muestras/{orden}/tomar-todas', [MuestraController::class, 'tomarTodas'])
-        ->name('muestras.tomar-todas');
-    Route::get('resultados', [ResultadoController::class, 'index'])
-        ->name('resultados.index');
-    Route::get('resultados/{orden}', [ResultadoController::class, 'show'])
-        ->name('resultados.show');
-    Route::patch('resultados/{orden}/items/{item}/cargar', [ResultadoController::class, 'cargarResultado'])
-        ->name('resultados.cargar');
-    Route::post('resultados/{orden}/cargar-todos', [ResultadoController::class, 'cargarTodos'])
-        ->name('resultados.cargar-todos');
-    Route::post('resultados/{orden}/validar', [ResultadoController::class, 'validar'])
-        ->name('resultados.validar');
-    Route::patch('resultados/{orden}/items/{item}/descartar', [ResultadoController::class, 'descartarResultado'])
-        ->name('resultados.descartar');
-
-
 
     Route::get('dashboard/drilldown', [DashboardController::class, 'drilldown'])->name('dashboard.drilldown');
 

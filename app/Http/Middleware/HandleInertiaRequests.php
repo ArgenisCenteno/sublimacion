@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\TasaCambio;
 use App\Services\Notifications\NotificationFeedService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,10 +55,6 @@ class HandleInertiaRequests extends Middleware
             ],
             'notifications' => fn () => app(NotificationFeedService::class)->forUser($request->user()),
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'tasasCambio' => fn () => [
-                'BS' => TasaCambio::vigente('BS'),
-                'EUR' => TasaCambio::vigente('EUR'),
-            ],
         ];
     }
 }

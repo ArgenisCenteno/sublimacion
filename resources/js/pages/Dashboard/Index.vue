@@ -2,14 +2,7 @@
   <AdminLayout>
     <PageBreadcrumb :pageTitle="'Dashboard'" />
 
-    <div class="space-y-6">
-      <div class="dashboard-section dashboard-section--1">
-        <DashboardHeroMetrics :hero="hero" @open-drilldown="openDrilldown" />
-      </div>
-
-      
-         
-    </div>
+    <div class="space-y-6"></div>
 
     <DashboardDrilldownDrawer
       :open="drilldown.open"
@@ -28,7 +21,6 @@
 import { reactive } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import DashboardHeroMetrics from '@/components/dashboard/DashboardHeroMetrics.vue'
 import DashboardFleetPanel from '@/components/dashboard/DashboardFleetPanel.vue'
 import DashboardAlertsPanel from '@/components/dashboard/DashboardAlertsPanel.vue'
 import DashboardOperationsPanel from '@/components/dashboard/DashboardOperationsPanel.vue'

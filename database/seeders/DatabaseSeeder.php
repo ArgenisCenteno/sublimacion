@@ -16,8 +16,6 @@ class DatabaseSeeder extends Seeder
         // Datos maestros
         $this->call([
             RolePermissionSeeder::class,
-            BiocerraLabSeeder::class,
-
         ]);
 
         // Usuarios de ejemplo

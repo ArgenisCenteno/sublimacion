@@ -1,12 +1,12 @@
 <template>
-  <Head title="Laboratorio Clínico" />
+  <Head title="[Nombre de la empresa]" />
 
   <Transition name="fade">
     <div
       v-if="isLoading"
       class="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-4 bg-white dark:bg-gray-900"
     >
-      <Heart fill="#42AAAB" class="heartbeat h-16 w-16 text-[#42AAAB]" />
+      <Sparkles fill="#42AAAB" class="heartbeat h-16 w-16 text-[#42AAAB]" />
       <p class="text-sm font-medium tracking-wide text-gray-400 dark:text-gray-500">Cargando...</p>
     </div>
   </Transition>
@@ -24,13 +24,13 @@
               class="flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-300"
               :class="scrolled ? 'bg-[#42AAAB] text-white' : 'bg-white/15 text-white ring-1 ring-white/30'"
             >
-              <HeartPulse class="h-5 w-5" />
+              <Building2 class="h-5 w-5" />
             </span>
             <span
               class="text-lg font-semibold transition-colors duration-300"
               :class="scrolled ? 'text-gray-800 dark:text-white' : 'text-white'"
             >
-              Biocerra
+              [Nombre de la empresa]
             </span>
           </a>
 
@@ -145,8 +145,8 @@
         <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-20 pt-32 lg:grid-cols-2 lg:px-8 lg:pb-28 lg:pt-40">
           <div>
             <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/25">
-              <Microscope class="h-4 w-4" />
-              Laboratorio Clínico
+              <Sparkles class="h-4 w-4" />
+              [Categoría del negocio]
             </span>
 
             <div class="relative mt-6">
@@ -159,8 +159,8 @@
             </div>
 
             <p class="mt-5 max-w-lg text-base text-white/80 sm:text-lg">
-              En Biocerra realizamos tus análisis clínicos con tecnología moderna, personal certificado y atención
-              cercana, para darte resultados precisos y a tiempo.
+              En [Nombre de la empresa] ofrecemos [descripción breve de tu servicio o producto] con tecnología
+              moderna, personal capacitado y atención cercana, para darte resultados precisos y a tiempo.
             </p>
             <div class="mt-8 flex flex-wrap items-center gap-4">
               <a
@@ -201,19 +201,20 @@
           <!-- Hero visual -->
           <div class="relative hidden h-[460px] lg:block">
             <div class="absolute inset-x-6 inset-y-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/15 to-white/0 ring-1 ring-white/20 backdrop-blur-sm">
-              <div class="flex h-full items-center justify-center">
-                <img src="landing/hero.png" alt="hola">
+              <div class="flex h-full flex-col items-center justify-center gap-3 text-white/70">
+                <ImagePlaceholderIcon class="h-12 w-12" />
+                <p class="text-sm">[Imagen destacada]</p>
               </div>
             </div>
 
             <div class="float-slow absolute left-2 top-4 w-56 rounded-2xl bg-white p-5 shadow-theme-xl dark:bg-gray-800">
               <div class="flex items-center gap-3">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#42AAAB]/10 dark:bg-[#42AAAB]/20">
-                  <TestTube class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
+                  <Star class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
                 </span>
                 <div>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Química Sanguínea</p>
-                  <p class="text-xs text-gray-400">Perfil completo</p>
+                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">[Servicio 1]</p>
+                  <p class="text-xs text-gray-400">[Detalle breve]</p>
                 </div>
               </div>
             </div>
@@ -233,11 +234,11 @@
             <div class="float-slow absolute bottom-6 left-12 w-52 rounded-2xl bg-white p-5 shadow-theme-xl dark:bg-gray-800">
               <div class="flex items-center gap-3">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#42AAAB]/10 dark:bg-[#42AAAB]/20">
-                  <HeartPulseIcon class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
+                  <Zap class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
                 </span>
                 <div>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Perfil Lipídico</p>
-                  <p class="text-xs text-gray-400">Salud cardiovascular</p>
+                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">[Servicio 2]</p>
+                  <p class="text-xs text-gray-400">[Detalle breve]</p>
                 </div>
               </div>
             </div>
@@ -254,7 +255,7 @@
         <div v-reveal class="reveal mx-auto max-w-2xl text-center">
           <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Nuestros servicios</h2>
           <p class="mt-3 text-gray-500 dark:text-gray-400">
-            Contamos con un amplio panel de exámenes de laboratorio clínico para cuidar tu salud y la de tu familia.
+            Contamos con una amplia gama de servicios pensados para cubrir tus necesidades y las de tu familia.
           </p>
         </div>
 
@@ -280,7 +281,7 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div v-reveal class="reveal mx-auto max-w-2xl text-center">
             <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">¿Cómo funciona?</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Realizar tus análisis con nosotros es muy sencillo.</p>
+            <p class="mt-3 text-gray-500 dark:text-gray-400">Trabajar con nosotros es muy sencillo.</p>
           </div>
 
           <div class="mt-12 grid gap-8 sm:grid-cols-3">
@@ -309,9 +310,10 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div class="grid items-center gap-12 lg:grid-cols-2">
             <div v-reveal class="reveal relative">
-              <div class="aspect-[4/3] overflow-hidden rounded-3xl ">
-                <div class="flex h-full items-center justify-center">
-                <img src="landing/lab.jpg" alt="">
+              <div class="aspect-[4/3] overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800">
+                <div class="flex h-full flex-col items-center justify-center gap-3 text-gray-400 dark:text-gray-500">
+                  <ImagePlaceholderIcon class="h-12 w-12" />
+                  <p class="text-sm">[Imagen de la empresa]</p>
                 </div>
               </div>
               <div class="absolute -bottom-6 -right-6 hidden max-w-[220px] rounded-2xl bg-[#42AAAB] p-4 shadow-theme-xl sm:block">
@@ -319,7 +321,7 @@
                   <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
                     <Award class="h-5 w-5 text-white" />
                   </span>
-                  <p class="text-sm font-medium text-white">Compromiso con la calidad diagnóstica</p>
+                  <p class="text-sm font-medium text-white">Compromiso con la calidad en cada servicio</p>
                 </div>
               </div>
             </div>
@@ -330,11 +332,11 @@
                 Quiénes somos
               </span>
               <h2 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">
-                Comprometidos con tu salud, en cada paso
+                Comprometidos contigo, en cada paso
               </h2>
               <p class="mt-4 text-gray-500 dark:text-gray-400">
-                Somos un laboratorio clínico enfocado en ofrecer diagnósticos confiables. Combinamos tecnología
-                moderna con un equipo humano capacitado para acompañarte en el cuidado de tu salud, con calidez y
+                Somos una empresa enfocada en ofrecer un servicio confiable. Combinamos tecnología
+                moderna con un equipo humano capacitado para acompañarte en cada paso, con calidez y
                 profesionalismo en cada visita.
               </p>
               <ul class="mt-6 space-y-3">
@@ -358,9 +360,9 @@
                 <Award class="h-4 w-4" />
                 Nuestros diferenciales
               </span>
-              <h3 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">Por qué elegir Biocerra</h3>
+              <h3 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">Por qué elegir [Nombre de la empresa]</h3>
               <p class="mt-3 text-gray-500 dark:text-gray-400">
-                Cuatro razones por las que pacientes y médicos confían en nuestro laboratorio para su diagnóstico.
+                Cuatro razones por las que nuestros clientes confían en nosotros.
               </p>
             </div>
 
@@ -408,7 +410,9 @@
               :style="{ transitionDelay: `${index * 70}ms` }"
               class="reveal group relative aspect-[4/3] overflow-hidden rounded-2xl shadow-theme-xs"
             >
-              <img :src="item.imagen" :alt="item.titulo" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+              <div class="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <ImagePlaceholderIcon class="h-10 w-10 text-gray-300 dark:text-gray-600" />
+              </div>
               <div class="absolute inset-x-0 bottom-0 bg-black/30 px-4 py-2.5 backdrop-blur-sm">
                 <p class="text-sm font-medium text-white">{{ item.titulo }}</p>
               </div>
@@ -417,12 +421,12 @@
         </div>
       </section>
 
-      <!-- Salud y prevención -->
+      <!-- Consejos -->
       <section class="relative bg-white py-16 dark:bg-gray-900">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Cuida tu salud</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Pequeños hábitos de prevención que marcan una gran diferencia.</p>
+            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Consejos útiles</h2>
+            <p class="mt-3 text-gray-500 dark:text-gray-400">Pequeños hábitos y buenas prácticas que marcan una gran diferencia.</p>
           </div>
 
           <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -452,7 +456,7 @@
         <div class="mx-auto max-w-3xl px-6 lg:px-8">
           <div v-reveal class="reveal mx-auto max-w-2xl text-center">
             <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Preguntas frecuentes</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Resolvemos las dudas más comunes sobre nuestros servicios de laboratorio.</p>
+            <p class="mt-3 text-gray-500 dark:text-gray-400">Resolvemos las dudas más comunes sobre nuestros servicios.</p>
           </div>
 
           <div class="mt-10 space-y-3">
@@ -491,7 +495,7 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div v-reveal class="reveal mx-auto max-w-2xl text-center">
             <h2 class="text-title-sm font-semibold text-white">Hablemos</h2>
-            <p class="mt-3 text-white/70">Estamos para ayudarte con tus dudas, resultados o para agendar tu visita.</p>
+            <p class="mt-3 text-white/70">Estamos para ayudarte con tus dudas o para agendar tu cita.</p>
           </div>
 
           <div class="mt-14 grid gap-8 lg:grid-cols-2">
@@ -550,7 +554,7 @@
                 </span>
                 <h3 class="mt-5 text-lg font-semibold text-white">Escríbenos</h3>
                 <p class="mt-2 text-sm text-white/70">
-                  Respondemos rápido por WhatsApp para resolver tus dudas o agendar tu examen.
+                  Respondemos rápido por WhatsApp para resolver tus dudas o agendar tu cita.
                 </p>
                 <a
                   :href="whatsappHref"
@@ -572,11 +576,11 @@
                   Envíanos tus dudas o solicitudes y te responderemos a la brevedad.
                 </p>
                 <a
-                  href="mailto:contacto@biocerra.com"
+                  href="mailto:[Correo electrónico]"
                   class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
                 >
                   <Mail class="h-5 w-5" />
-                  contacto@biocerra.com
+                  [Correo electrónico]
                 </a>
               </div>
             </div>
@@ -589,7 +593,7 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div v-reveal class="reveal mx-auto max-w-2xl text-center">
             <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Ubicación</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">{{ direccionLaboratorio }}</p>
+            <p class="mt-3 text-gray-500 dark:text-gray-400">{{ direccionEmpresa }}</p>
           </div>
 
           <div v-reveal class="reveal mt-10 overflow-hidden rounded-3xl shadow-theme-xs">
@@ -615,17 +619,17 @@
         </div>
       </section>
 
-       <!-- Prevención -->
+       <!-- Llamado a la acción -->
       <section class="relative overflow-hidden bg-gradient-to-r from-[#42AAAB] via-[#2f8f90] to-[#1f4f50] py-14">
         <div class="mx-auto max-w-3xl px-6 text-center lg:px-8">
           <span v-reveal class="reveal inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white">
             <ShieldCheck class="h-4 w-4" />
-            Prevención
+            [Aviso destacado]
           </span>
-          <h2 v-reveal class="reveal mt-5 text-title-sm font-semibold text-white">Más vale prevenir que curar</h2>
+          <h2 v-reveal class="reveal mt-5 text-title-sm font-semibold text-white">No esperes más para dar el siguiente paso</h2>
           <p v-reveal class="reveal mt-3 text-white/80">
-            Un chequeo a tiempo puede marcar la diferencia. Agenda tus exámenes de rutina y cuida tu salud antes de
-            que aparezcan síntomas.
+            Actuar a tiempo puede marcar la diferencia. Agenda tu cita y aprovecha nuestros servicios cuando los
+            necesites.
           </p>
           <a
             v-reveal
@@ -634,7 +638,7 @@
             rel="noopener"
             class="reveal mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
           >
-            Agenda tu chequeo
+            Agenda tu cita
             <ArrowRight class="h-4 w-4" />
           </a>
         </div>
@@ -646,12 +650,12 @@
             <div>
               <div class="flex items-center gap-2.5">
                 <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[#42AAAB] text-white">
-                  <HeartPulse class="h-5 w-5" />
+                  <Building2 class="h-5 w-5" />
                 </span>
-                <span class="text-lg font-semibold text-white">Biocerra</span>
+                <span class="text-lg font-semibold text-white">[Nombre de la empresa]</span>
               </div>
               <p class="mt-4 max-w-xs text-sm text-gray-400">
-                Laboratorio clínico comprometido con resultados confiables y una atención cercana.
+                Empresa comprometida con un servicio confiable y una atención cercana.
               </p>
             </div>
 
@@ -690,14 +694,14 @@
                 </li>
                 <li class="flex items-start gap-2 text-sm text-gray-400">
                   <MapPin class="mt-0.5 h-4 w-4 shrink-0" />
-                  {{ direccionLaboratorio }}
+                  {{ direccionEmpresa }}
                 </li>
               </ul>
             </div>
           </div>
 
           <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-            <p class="text-xs text-gray-500">&copy; {{ year }} Biocerra. Todos los derechos reservados.</p>
+            <p class="text-xs text-gray-500">&copy; {{ year }} [Nombre de la empresa]. Todos los derechos reservados.</p>
             <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <Link href="/privacidad" class="text-xs text-gray-500 transition hover:text-white">Privacidad</Link>
               <Link href="/cookies" class="text-xs text-gray-500 transition hover:text-white">Cookies</Link>
@@ -764,25 +768,25 @@ import { useTheme } from '@/components/layout/ThemeProvider.vue'
 import {
   Menu,
   X,
-  Microscope,
+  Sparkles,
+  Image as ImagePlaceholderIcon,
   ArrowRight,
   ShieldCheck,
   Clock,
   Lock,
-  TestTube,
+  Star,
   CircleCheck,
-  HeartPulse,
-  Heart,
-  Droplet,
-  FlaskConical,
-  Syringe,
+  Zap,
+  Layers,
+  Target,
+  Compass,
+  Settings2,
   ClipboardCheck,
-  Dna,
+  Building2,
   Award,
   Users,
   MapPin,
   Navigation,
-  Stethoscope,
   Mail,
   ChevronDown,
   Sun,
@@ -790,9 +794,6 @@ import {
 } from 'lucide-vue-next'
 
 const { toggleTheme } = useTheme()
-
-// Íconos alias para evitar choques de nombre en el template
-const HeartPulseIcon = HeartPulse
 
 // --- Loading (heartbeat) ---
 const isLoading = ref(true)
@@ -805,7 +806,7 @@ const onScroll = () => {
 }
 
 // --- Animación de escritura del titular ---
-const heroHeading = 'Cuidamos tu salud con resultados en los que puedes confiar'
+const heroHeading = 'Comprometidos a ofrecerte resultados en los que puedes confiar'
 const typedHeading = ref('')
 let typingTimeout: ReturnType<typeof setTimeout> | undefined
 
@@ -837,7 +838,7 @@ onUnmounted(() => {
 })
 
 // --- Aviso de cookies ---
-const cookieConsentKey = 'biocerra_cookie_consent'
+const cookieConsentKey = 'company_cookie_consent'
 const showCookieBanner = ref(false)
 
 onMounted(() => {
@@ -864,33 +865,28 @@ const toggleFaq = (index: number) => {
 
 const faqs = [
   {
-    pregunta: '¿Necesito estar en ayunas para mis exámenes?',
-    respuesta:
-      'La mayoría de los exámenes de química sanguínea requieren entre 8 y 12 horas de ayuno. Escríbenos por WhatsApp para confirmar la preparación específica de tu estudio.',
+    pregunta: '[Pregunta frecuente 1]',
+    respuesta: '[Respuesta a la pregunta frecuente 1]',
   },
   {
-    pregunta: '¿Necesito una orden médica?',
-    respuesta:
-      'Para la mayoría de los estudios sí, pero también realizamos pruebas rápidas y de rutina sin orden médica. Contáctanos para verificar tu caso.',
+    pregunta: '[Pregunta frecuente 2]',
+    respuesta: '[Respuesta a la pregunta frecuente 2]',
   },
   {
-    pregunta: '¿Cuánto tiempo tardan mis resultados?',
-    respuesta:
-      'Depende del tipo de examen: los estudios de rutina suelen estar listos en 24 a 48 horas, mientras que algunos estudios especializados pueden tardar un poco más.',
+    pregunta: '[Pregunta frecuente 3]',
+    respuesta: '[Respuesta a la pregunta frecuente 3]',
   },
   {
-    pregunta: '¿Cómo recibo mis resultados?',
-    respuesta: 'Puedes recibirlos por correo electrónico o WhatsApp, o retirarlos directamente en nuestras instalaciones.',
+    pregunta: '[Pregunta frecuente 4]',
+    respuesta: '[Respuesta a la pregunta frecuente 4]',
   },
   {
-    pregunta: '¿Debo agendar una cita previa?',
-    respuesta:
-      'No es obligatorio, pero te recomendamos escribirnos por WhatsApp antes de tu visita para evitar tiempos de espera.',
+    pregunta: '[Pregunta frecuente 5]',
+    respuesta: '[Respuesta a la pregunta frecuente 5]',
   },
   {
-    pregunta: '¿Mis resultados son confidenciales?',
-    respuesta:
-      'Sí. Tus resultados son estrictamente confidenciales y solo tú y el médico que solicitó el estudio pueden acceder a ellos.',
+    pregunta: '[Pregunta frecuente 6]',
+    respuesta: '[Respuesta a la pregunta frecuente 6]',
   },
 ]
 
@@ -922,24 +918,24 @@ const vReveal = {
 
 const year = new Date().getFullYear()
 
-const whatsappNumber = '584128558284'
-const whatsappMessage = 'Hola, quisiera información sobre los servicios del laboratorio.'
+const whatsappNumber = '[Teléfono]'
+const whatsappMessage = 'Hola, quisiera información sobre sus servicios.'
 const whatsappHref = computed(
   () => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
 )
-const whatsappDisplay = '0412-855-8284'
+const whatsappDisplay = '[Teléfono]'
 
 const contactForm = ref({ nombre: '', correo: '', telefono: '', mensaje: '' })
 const handleContactSubmit = () => {
   // Pendiente: conectar con el backend de envío del formulario.
 }
 
-const direccionLaboratorio = 'Av. Principal, Sector Centro, Ciudad, Venezuela'
+const direccionEmpresa = '[Dirección]'
 const mapsHref = computed(
-  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionLaboratorio)}`
+  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionEmpresa)}`
 )
 const mapsEmbedSrc = computed(
-  () => `https://www.google.com/maps?q=${encodeURIComponent(direccionLaboratorio)}&output=embed`
+  () => `https://www.google.com/maps?q=${encodeURIComponent(direccionEmpresa)}&output=embed`
 )
 
 const navLinks = [
@@ -965,67 +961,67 @@ const WhatsAppIcon = (props: { class?: string }) =>
   )
 
 const servicios = [
-  { titulo: 'Hematología', descripcion: 'Hematología completa, tipiaje y coagulación.', icono: Droplet },
-  { titulo: 'Química Sanguínea', descripcion: 'Glicemia, urea, creatinina y perfiles metabólicos.', icono: TestTube },
-  { titulo: 'Perfil Lipídico', descripcion: 'Colesterol, triglicéridos y salud cardiovascular.', icono: HeartPulse },
-  { titulo: 'Uroanálisis', descripcion: 'Examen de orina completo y sedimento urinario.', icono: FlaskConical },
-  { titulo: 'Perfil Hormonal', descripcion: 'Tiroides, fertilidad y evaluación endocrina.', icono: Dna },
-  { titulo: 'Microbiología', descripcion: 'Cultivos, antibiogramas y estudios bacteriológicos.', icono: Microscope },
-  { titulo: 'Serología', descripcion: 'Pruebas inmunológicas y de enfermedades infecciosas.', icono: Syringe },
-  { titulo: 'Pruebas Rápidas', descripcion: 'Embarazo, dengue y pruebas de diagnóstico rápido.', icono: ClipboardCheck },
+  { titulo: '[Servicio 1]', descripcion: '[Descripción del servicio 1]', icono: Star },
+  { titulo: '[Servicio 2]', descripcion: '[Descripción del servicio 2]', icono: Zap },
+  { titulo: '[Servicio 3]', descripcion: '[Descripción del servicio 3]', icono: ShieldCheck },
+  { titulo: '[Servicio 4]', descripcion: '[Descripción del servicio 4]', icono: Layers },
+  { titulo: '[Servicio 5]', descripcion: '[Descripción del servicio 5]', icono: Target },
+  { titulo: '[Servicio 6]', descripcion: '[Descripción del servicio 6]', icono: Compass },
+  { titulo: '[Servicio 7]', descripcion: '[Descripción del servicio 7]', icono: Settings2 },
+  { titulo: '[Servicio 8]', descripcion: '[Descripción del servicio 8]', icono: ClipboardCheck },
 ]
 
 const pasos = [
   { titulo: 'Contáctanos', descripcion: 'Escríbenos por WhatsApp para agendar tu cita o resolver dudas.' },
-  { titulo: 'Toma de muestra', descripcion: 'Acude al laboratorio y realiza tu toma de muestra sin esperas.' },
-  { titulo: 'Recibe tus resultados', descripcion: 'Obtén tus resultados de forma rápida y confiable.' },
+  { titulo: '[Paso 2]', descripcion: '[Descripción del paso 2]' },
+  { titulo: '[Paso 3]', descripcion: '[Descripción del paso 3]' },
 ]
 
 const nosotrosPuntos = [
-  'Bioanalistas y personal certificado',
+  'Personal certificado y capacitado',
   'Procesos y equipos validados',
   'Atención cercana y humana en cada visita',
 ]
 
 const valores = [
-  { titulo: 'Personal certificado', descripcion: 'Bioanalistas y personal capacitado.', icono: ShieldCheck, accent: 'from-[#42AAAB] to-[#276667]' },
+  { titulo: 'Personal certificado', descripcion: 'Equipo capacitado y comprometido con la calidad.', icono: ShieldCheck, accent: 'from-[#42AAAB] to-[#276667]' },
   { titulo: 'Tecnología moderna', descripcion: 'Equipos actualizados para mayor precisión.', icono: Award, accent: 'from-blue-light-400 to-blue-light-600' },
   { titulo: 'Atención rápida', descripcion: 'Procesos ágiles y resultados a tiempo.', icono: Clock, accent: 'from-warning-400 to-warning-600' },
-  { titulo: 'Confidencialidad', descripcion: 'Tu información y resultados están protegidos.', icono: Lock, accent: 'from-success-400 to-success-600' },
+  { titulo: 'Confidencialidad', descripcion: 'Tu información está protegida.', icono: Lock, accent: 'from-success-400 to-success-600' },
 ]
 
 const galeria = [
-  { titulo: 'Recepción', imagen: 'landing/recepcion.jpg' },
-  { titulo: 'Toma de muestras', imagen: 'landing/muestras.jpg' },
-  { titulo: 'Laboratorio', imagen: 'landing/labo.jpg' },
-  { titulo: 'Equipos modernos', imagen: 'landing/equipo.jpg' },
-  { titulo: 'Nuestro equipo', imagen: 'landing/empleado.jpg' },
-  { titulo: 'Instalaciones', imagen: 'landing/sede.jpg' },
+  { titulo: 'Recepción' },
+  { titulo: '[Nuestro trabajo]' },
+  { titulo: '[Nuestras instalaciones]' },
+  { titulo: 'Equipos modernos' },
+  { titulo: 'Nuestro equipo' },
+  { titulo: 'Sede principal' },
 ]
 
 const saludTips = [
   {
-    titulo: 'Prevención de la diabetes',
-    texto: 'Un chequeo de glicemia una vez al año ayuda a detectarla a tiempo.',
-    icono: Droplet,
+    titulo: '[Consejo 1]',
+    texto: '[Descripción del consejo 1]',
+    icono: Star,
     color: 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-400',
   },
   {
-    titulo: 'Salud cardiovascular',
-    texto: 'Revisa tu perfil lipídico y tu presión arterial de forma regular.',
-    icono: HeartPulse,
+    titulo: '[Consejo 2]',
+    texto: '[Descripción del consejo 2]',
+    icono: ShieldCheck,
     color: 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
   },
   {
-    titulo: 'Chequeos preventivos',
-    texto: 'La prevención es la mejor cura: hazte un chequeo general cada año.',
-    icono: Stethoscope,
+    titulo: '[Consejo 3]',
+    texto: '[Descripción del consejo 3]',
+    icono: Compass,
     color: 'bg-[#42AAAB]/10 text-[#358C8D] dark:bg-[#42AAAB]/15 dark:text-[#42AAAB]',
   },
   {
-    titulo: 'Antecedentes y genética',
-    texto: 'Conoce tu historial familiar con nuestras pruebas hormonales.',
-    icono: Dna,
+    titulo: '[Consejo 4]',
+    texto: '[Descripción del consejo 4]',
+    icono: Target,
     color: 'bg-blue-light-50 text-blue-light-600 dark:bg-blue-light-500/15 dark:text-blue-light-400',
   },
 ]

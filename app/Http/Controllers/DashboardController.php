@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Alert;
 use App\Models\CostEntry;
 use App\Models\Invoice;
-use App\Models\Muestra;
-use App\Models\OrdenExamen;
-use App\Models\OrdenTrabajo;
 use App\Models\RentingContract;
 use App\Models\SaleContract;
 use App\Models\Vehicle;
@@ -17,8 +14,6 @@ use App\Models\WorkshopOrder;
 use App\Services\Alerts\AlertCenterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,89 +21,7 @@ class DashboardController extends Controller
 {
     public function __invoke(): Response
     {
-        // ── Hero cards ────────────────────────────────────────────────────
-        $ordenes_hoy = OrdenTrabajo::whereDate('created_at', today())->count();
-
-        $muestras_pendientes = Muestra::where('estado', 'pendiente')->count();
-
-        $resultados_pendientes = OrdenExamen::whereIn('estado', ['muestra_tomada', 'en_proceso'])->count();
-
-        $ordenes_listas = OrdenTrabajo::where('estado', 'listo')->count();
-
-        // ── Órdenes recientes ─────────────────────────────────────────────
-        $ordenes_recientes = OrdenTrabajo::with(['paciente', 'medico'])
-            ->latest()
-            ->limit(8)
-            ->get()
-            ->map(fn ($o) => [
-                'id'              => $o->id,
-                'codigo'          => $o->codigo,
-                'estado'          => $o->estado,
-                'estado_label'    => $o->estado_label,
-                'estado_pago'     => $o->estado_pago,
-                'total'           => $o->total,
-                'created_at'      => $o->created_at->format('d/m H:i'),
-                'paciente'        => $o->paciente ? [
-                    'nombre' => "{$o->paciente->apellidos}, {$o->paciente->nombres}",
-                    'cedula' => "{$o->paciente->tipo_documento}-{$o->paciente->cedula}",
-                ] : null,
-                'medico' => $o->medico?->nombre_completo,
-            ]);
-
-        // ── Cola de muestras ──────────────────────────────────────────────
-        $cola_muestras = OrdenTrabajo::with('paciente')
-            ->whereIn('estado', ['pendiente', 'en_proceso'])
-            ->whereHas('muestras', fn ($q) => $q->where('estado', 'pendiente'))
-            ->withCount(['muestras as muestras_pendientes' => fn ($q) => $q->where('estado', 'pendiente')])
-            ->latest()
-            ->limit(5)
-            ->get()
-            ->map(fn ($o) => [
-                'id'                 => $o->id,
-                'codigo'             => $o->codigo,
-                'muestras_pendientes'=> $o->muestras_pendientes,
-                'paciente'           => $o->paciente?->apellidos . ', ' . $o->paciente?->nombres,
-            ]);
-
-        // ── Estadísticas por estado ───────────────────────────────────────
-        $por_estado = OrdenTrabajo::select('estado', DB::raw('COUNT(*) as total'))
-            ->groupBy('estado')
-            ->pluck('total', 'estado');
-
-        // ── Estadísticas de pago ──────────────────────────────────────────
-        $por_pago = OrdenTrabajo::select('estado_pago', DB::raw('COUNT(*) as total'))
-            ->whereDate('created_at', today())
-            ->groupBy('estado_pago')
-            ->pluck('total', 'estado_pago');
-
-        return Inertia::render('Dashboard/Index', [
-            'hero' => [
-                'ordenes_hoy'          => $ordenes_hoy,
-                'muestras_pendientes'  => $muestras_pendientes,
-                'resultados_pendientes'=> $resultados_pendientes,
-                'ordenes_listas'       => $ordenes_listas,
-            ],
-            'ordenes' => [
-                'recientes'    => $ordenes_recientes,
-                'por_estado'   => [
-                    'pendiente'  => (int) ($por_estado['pendiente']  ?? 0),
-                    'en_proceso' => (int) ($por_estado['en_proceso'] ?? 0),
-                    'listo'      => (int) ($por_estado['listo']      ?? 0),
-                    'entregado'  => (int) ($por_estado['entregado']  ?? 0),
-                    'anulado'    => (int) ($por_estado['anulado']    ?? 0),
-                ],
-                'pagos_hoy' => [
-                    'pendiente'  => (int) ($por_pago['pendiente']  ?? 0),
-                    'pagado'     => (int) ($por_pago['pagado']     ?? 0),
-                    'exonerado'  => (int) ($por_pago['exonerado']  ?? 0),
-                ],
-            ],
-            'laboratorio' => [
-                'cola_muestras'        => $cola_muestras,
-                'muestras_pendientes'  => $muestras_pendientes,
-                'resultados_pendientes'=> $resultados_pendientes,
-            ],
-        ]);
+        return Inertia::render('Dashboard/Index');
     }
 
     public function drilldown(Request $request, AlertCenterService $alertCenterService): JsonResponse
