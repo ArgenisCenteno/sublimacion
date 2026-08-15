@@ -1,0 +1,565 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2990 >>
+stream
+BT
+/F2 18 Tf
+1 0 0 1 50 784 Tm
+(Documentacion de rutas) Tj
+/F2 13 Tf
+1 0 0 1 50 755 Tm
+(Vision general) Tj
+/F1 11 Tf
+1 0 0 1 50 731 Tm
+(La aplicacion expone rutas publicas, rutas operativas por PIN y rutas) Tj
+/F1 11 Tf
+1 0 0 1 50 717 Tm
+(protegidas para el panel interno. La mayor parte del negocio se concentra en) Tj
+/F1 11 Tf
+1 0 0 1 50 703 Tm
+(estos bloques:) Tj
+/F1 11 Tf
+1 0 0 1 50 684 Tm
+(- acceso y autenticacion) Tj
+/F1 11 Tf
+1 0 0 1 50 670 Tm
+(- operaciones por taller o campa) Tj
+/F1 11 Tf
+1 0 0 1 50 656 Tm
+(- flota y vehiculos) Tj
+/F1 11 Tf
+1 0 0 1 50 642 Tm
+(- administracion) Tj
+/F1 11 Tf
+1 0 0 1 50 628 Tm
+(- clientes, ventas y finanzas) Tj
+/F1 11 Tf
+1 0 0 1 50 614 Tm
+(- alertas y configuracion) Tj
+/F2 13 Tf
+1 0 0 1 50 595 Tm
+(1. Rutas publicas) Tj
+/F2 12 Tf
+1 0 0 1 50 571 Tm
+(`/`) Tj
+/F1 11 Tf
+1 0 0 1 50 555 Tm
+(Redirige al inicio de sesion.) Tj
+/F2 12 Tf
+1 0 0 1 50 536 Tm
+(`/signin`) Tj
+/F1 11 Tf
+1 0 0 1 50 520 Tm
+(Muestra la pantalla de acceso principal de la aplicacion.) Tj
+/F2 12 Tf
+1 0 0 1 50 501 Tm
+(`/404`) Tj
+/F1 11 Tf
+1 0 0 1 50 485 Tm
+(Muestra la pantalla de error 404.) Tj
+/F2 13 Tf
+1 0 0 1 50 466 Tm
+(2. Rutas de operaciones) Tj
+/F1 11 Tf
+1 0 0 1 50 442 Tm
+(Estas rutas no usan login tradicional. El acceso se hace con PIN y, segun el) Tj
+/F1 11 Tf
+1 0 0 1 50 428 Tm
+(proveedor validado, el operario entra en su area.) Tj
+/F2 12 Tf
+1 0 0 1 50 409 Tm
+(`/operaciones`) Tj
+/F1 11 Tf
+1 0 0 1 50 393 Tm
+(Pantalla de acceso por PIN.) Tj
+/F2 12 Tf
+1 0 0 1 50 374 Tm
+(`POST /operaciones/access`) Tj
+/F1 11 Tf
+1 0 0 1 50 358 Tm
+(Valida el PIN y abre la vista operativa correspondiente.) Tj
+/F2 12 Tf
+1 0 0 1 50 339 Tm
+(Chapa) Tj
+/F1 11 Tf
+1 0 0 1 50 318 Tm
+(- `GET /operaciones/chapa`) Tj
+/F1 11 Tf
+1 0 0 1 50 304 Tm
+(  Abre la vista de trabajo del taller de chapa.) Tj
+/F1 11 Tf
+1 0 0 1 50 290 Tm
+(- `POST /operaciones/chapa/analyze-plate`) Tj
+/F1 11 Tf
+1 0 0 1 50 276 Tm
+(  Analiza la foto de la placa y localiza el vehiculo.) Tj
+/F1 11 Tf
+1 0 0 1 50 262 Tm
+(- `POST /operaciones/chapa/confirm-reception`) Tj
+/F1 11 Tf
+1 0 0 1 50 248 Tm
+(  Confirma la recepcion del vehiculo en chapa.) Tj
+/F1 11 Tf
+1 0 0 1 50 234 Tm
+(- `POST /operaciones/chapa/report-mapped-damage`) Tj
+/F1 11 Tf
+1 0 0 1 50 220 Tm
+(  Guarda una incidencia marcada en el body map.) Tj
+/F1 11 Tf
+1 0 0 1 50 206 Tm
+(- `POST /operaciones/chapa/report-incident`) Tj
+/F1 11 Tf
+1 0 0 1 50 192 Tm
+(  Registra una incidencia manual de chapa.) Tj
+/F1 11 Tf
+1 0 0 1 50 178 Tm
+(- `POST /operaciones/chapa/finish-repair`) Tj
+/F1 11 Tf
+1 0 0 1 50 164 Tm
+(  Cierra la reparacion y deja evidencia del trabajo finalizado.) Tj
+/F2 12 Tf
+1 0 0 1 50 145 Tm
+(DAB) Tj
+/F1 11 Tf
+1 0 0 1 50 124 Tm
+(- `GET /operaciones/dab`) Tj
+/F1 11 Tf
+1 0 0 1 50 110 Tm
+(  Abre la vista de revision DAB.) Tj
+/F1 11 Tf
+1 0 0 1 50 96 Tm
+(- `POST /operaciones/dab/analyze-plate`) Tj
+/F1 11 Tf
+1 0 0 1 50 82 Tm
+(  Analiza la placa y busca el vehiculo.) Tj
+/F1 11 Tf
+1 0 0 1 50 68 Tm
+(- `POST /operaciones/dab/confirm-reception`) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 3237 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 784 Tm
+(  Confirma la recepcion del vehiculo en DAB.) Tj
+/F1 11 Tf
+1 0 0 1 50 770 Tm
+(- `POST /operaciones/dab/report-mapped-damage`) Tj
+/F1 11 Tf
+1 0 0 1 50 756 Tm
+(  Registra una marca en el mapa del vehiculo.) Tj
+/F1 11 Tf
+1 0 0 1 50 742 Tm
+(- `POST /operaciones/dab/checklist-item`) Tj
+/F1 11 Tf
+1 0 0 1 50 728 Tm
+(  Marca o actualiza un punto del checklist tecnico.) Tj
+/F1 11 Tf
+1 0 0 1 50 714 Tm
+(- `POST /operaciones/dab/finish-review`) Tj
+/F1 11 Tf
+1 0 0 1 50 700 Tm
+(  Finaliza la revision DAB.) Tj
+/F2 12 Tf
+1 0 0 1 50 681 Tm
+(Limpieza) Tj
+/F1 11 Tf
+1 0 0 1 50 660 Tm
+(- `GET /operaciones/limpieza`) Tj
+/F1 11 Tf
+1 0 0 1 50 646 Tm
+(  Abre la vista de limpieza.) Tj
+/F1 11 Tf
+1 0 0 1 50 632 Tm
+(- `POST /operaciones/limpieza/analyze-plate`) Tj
+/F1 11 Tf
+1 0 0 1 50 618 Tm
+(  Analiza la placa y localiza el vehiculo.) Tj
+/F1 11 Tf
+1 0 0 1 50 604 Tm
+(- `POST /operaciones/limpieza/confirm-reception`) Tj
+/F1 11 Tf
+1 0 0 1 50 590 Tm
+(  Confirma la entrada del vehiculo en limpieza.) Tj
+/F1 11 Tf
+1 0 0 1 50 576 Tm
+(- `POST /operaciones/limpieza/report-mapped-damage`) Tj
+/F1 11 Tf
+1 0 0 1 50 562 Tm
+(  Registra una incidencia visual desde el body map.) Tj
+/F1 11 Tf
+1 0 0 1 50 548 Tm
+(- `POST /operaciones/limpieza/finish-cleaning`) Tj
+/F1 11 Tf
+1 0 0 1 50 534 Tm
+(  Finaliza la limpieza y guarda evidencias.) Tj
+/F2 12 Tf
+1 0 0 1 50 515 Tm
+(Recepcion de campa) Tj
+/F1 11 Tf
+1 0 0 1 50 494 Tm
+(- `GET /operaciones/recepcion`) Tj
+/F1 11 Tf
+1 0 0 1 50 480 Tm
+(  Abre la vista de campa.) Tj
+/F1 11 Tf
+1 0 0 1 50 466 Tm
+(- `POST /operaciones/recepcion/analyze-plate`) Tj
+/F1 11 Tf
+1 0 0 1 50 452 Tm
+(  Analiza la placa y decide si el flujo es recepcion inicial o final.) Tj
+/F1 11 Tf
+1 0 0 1 50 438 Tm
+(- `POST /operaciones/recepcion/create-vehicle`) Tj
+/F1 11 Tf
+1 0 0 1 50 424 Tm
+(  Crea un vehiculo al momento si no existe en el sistema.) Tj
+/F1 11 Tf
+1 0 0 1 50 410 Tm
+(- `POST /operaciones/recepcion/report-mapped-damage`) Tj
+/F1 11 Tf
+1 0 0 1 50 396 Tm
+(  Guarda marcas o incidencias detectadas en campa.) Tj
+/F1 11 Tf
+1 0 0 1 50 382 Tm
+(- `POST /operaciones/recepcion/release-vehicle`) Tj
+/F1 11 Tf
+1 0 0 1 50 368 Tm
+(  Confirma la recepcion del vehiculo y define su siguiente flujo.) Tj
+/F2 13 Tf
+1 0 0 1 50 349 Tm
+(3. Dashboard y alertas) Tj
+/F2 12 Tf
+1 0 0 1 50 325 Tm
+(`/dashboard`) Tj
+/F1 11 Tf
+1 0 0 1 50 309 Tm
+(Muestra el dashboard principal con datos reales del negocio.) Tj
+/F2 12 Tf
+1 0 0 1 50 290 Tm
+(`/dashboard/drilldown`) Tj
+/F1 11 Tf
+1 0 0 1 50 274 Tm
+(Devuelve los listados detallados al pulsar indicadores del dashboard.) Tj
+/F2 12 Tf
+1 0 0 1 50 255 Tm
+(`/alerts`) Tj
+/F1 11 Tf
+1 0 0 1 50 239 Tm
+(Centro de alertas y tareas.) Tj
+/F2 12 Tf
+1 0 0 1 50 220 Tm
+(`POST /alerts/{alert}/action`) Tj
+/F1 11 Tf
+1 0 0 1 50 204 Tm
+(Ejecuta la accion principal de una alerta.) Tj
+/F2 12 Tf
+1 0 0 1 50 185 Tm
+(`POST /alerts/{alert}/resolve`) Tj
+/F1 11 Tf
+1 0 0 1 50 169 Tm
+(Marca una alerta como resuelta.) Tj
+/F2 12 Tf
+1 0 0 1 50 150 Tm
+(`POST /alerts/{alert}/dismiss`) Tj
+/F1 11 Tf
+1 0 0 1 50 134 Tm
+(Descarta una alerta.) Tj
+/F2 13 Tf
+1 0 0 1 50 115 Tm
+(4. Flota y vehiculos) Tj
+/F2 12 Tf
+1 0 0 1 50 91 Tm
+(`/vehicles`) Tj
+/F1 11 Tf
+1 0 0 1 50 75 Tm
+(Listado general del parque vehicular.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 2579 >>
+stream
+BT
+/F2 12 Tf
+1 0 0 1 50 784 Tm
+(`/vehicles/create`) Tj
+/F1 11 Tf
+1 0 0 1 50 768 Tm
+(Alta manual o importacion de vehiculos.) Tj
+/F2 12 Tf
+1 0 0 1 50 749 Tm
+(`POST /vehicles/import`) Tj
+/F1 11 Tf
+1 0 0 1 50 733 Tm
+(Importa vehiculos de forma masiva.) Tj
+/F2 12 Tf
+1 0 0 1 50 714 Tm
+(`/vehicles/{vehicle}`) Tj
+/F1 11 Tf
+1 0 0 1 50 698 Tm
+(Ficha completa del vehiculo.) Tj
+/F2 12 Tf
+1 0 0 1 50 679 Tm
+(`/vehicles/{vehicle}/edit`) Tj
+/F1 11 Tf
+1 0 0 1 50 663 Tm
+(Edicion del vehiculo.) Tj
+/F2 12 Tf
+1 0 0 1 50 644 Tm
+(`POST /vehicles/{vehicle}/documents`) Tj
+/F1 11 Tf
+1 0 0 1 50 628 Tm
+(Sube o reemplaza documentos del expediente del vehiculo.) Tj
+/F2 12 Tf
+1 0 0 1 50 609 Tm
+(`/vehicles/{vehicle}/documents/{document}/download`) Tj
+/F1 11 Tf
+1 0 0 1 50 593 Tm
+(Descarga un documento del expediente del vehiculo.) Tj
+/F2 13 Tf
+1 0 0 1 50 574 Tm
+(5. Recursos administrativos) Tj
+/F1 11 Tf
+1 0 0 1 50 550 Tm
+(Estos modulos usan rutas resource clasicas con index, create, store, show,) Tj
+/F1 11 Tf
+1 0 0 1 50 536 Tm
+(edit, update y destroy:) Tj
+/F1 11 Tf
+1 0 0 1 50 517 Tm
+(- `/companies`) Tj
+/F1 11 Tf
+1 0 0 1 50 503 Tm
+(  Gestion de empresas.) Tj
+/F1 11 Tf
+1 0 0 1 50 489 Tm
+(- `/providers`) Tj
+/F1 11 Tf
+1 0 0 1 50 475 Tm
+(  Gestion de proveedores y PIN operativos.) Tj
+/F1 11 Tf
+1 0 0 1 50 461 Tm
+(- `/roles`) Tj
+/F1 11 Tf
+1 0 0 1 50 447 Tm
+(  Gestion de roles.) Tj
+/F1 11 Tf
+1 0 0 1 50 433 Tm
+(- `/permissions`) Tj
+/F1 11 Tf
+1 0 0 1 50 419 Tm
+(  Gestion de permisos.) Tj
+/F1 11 Tf
+1 0 0 1 50 405 Tm
+(- `/users`) Tj
+/F1 11 Tf
+1 0 0 1 50 391 Tm
+(  Gestion de usuarios internos.) Tj
+/F1 11 Tf
+1 0 0 1 50 377 Tm
+(- `/clients`) Tj
+/F1 11 Tf
+1 0 0 1 50 363 Tm
+(  Gestion de clientes.) Tj
+/F1 11 Tf
+1 0 0 1 50 349 Tm
+(- `/invoices`) Tj
+/F1 11 Tf
+1 0 0 1 50 335 Tm
+(  Gestion de facturas.) Tj
+/F1 11 Tf
+1 0 0 1 50 321 Tm
+(- `/workshop/orders`) Tj
+/F1 11 Tf
+1 0 0 1 50 307 Tm
+(  Gestion de ordenes de taller.) Tj
+/F2 13 Tf
+1 0 0 1 50 288 Tm
+(6. Perfil y cuenta) Tj
+/F2 12 Tf
+1 0 0 1 50 264 Tm
+(`/profile`) Tj
+/F1 11 Tf
+1 0 0 1 50 248 Tm
+(Perfil del usuario autenticado.) Tj
+/F2 12 Tf
+1 0 0 1 50 229 Tm
+(`PUT /profile`) Tj
+/F1 11 Tf
+1 0 0 1 50 213 Tm
+(Actualiza datos del perfil.) Tj
+/F2 12 Tf
+1 0 0 1 50 194 Tm
+(`PUT /profile/password`) Tj
+/F1 11 Tf
+1 0 0 1 50 178 Tm
+(Actualiza la contrasena.) Tj
+/F2 12 Tf
+1 0 0 1 50 159 Tm
+(`POST /profile/avatar`) Tj
+/F1 11 Tf
+1 0 0 1 50 143 Tm
+(Sube el avatar del usuario.) Tj
+/F2 12 Tf
+1 0 0 1 50 124 Tm
+(`DELETE /profile/avatar`) Tj
+/F1 11 Tf
+1 0 0 1 50 108 Tm
+(Elimina el avatar del usuario.) Tj
+/F2 13 Tf
+1 0 0 1 50 89 Tm
+(7. Exportaciones) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 2029 >>
+stream
+BT
+/F2 12 Tf
+1 0 0 1 50 784 Tm
+(`/export-invoices`) Tj
+/F1 11 Tf
+1 0 0 1 50 768 Tm
+(Exporta facturas en CSV.) Tj
+/F2 12 Tf
+1 0 0 1 50 749 Tm
+(`/export-zip-invoices`) Tj
+/F1 11 Tf
+1 0 0 1 50 733 Tm
+(Exporta facturas y archivos en ZIP.) Tj
+/F2 13 Tf
+1 0 0 1 50 714 Tm
+(8. Modulos placeholder o en construccion) Tj
+/F1 11 Tf
+1 0 0 1 50 690 Tm
+(Estas rutas ya existen en navegacion, pero hoy muestran vistas base o) Tj
+/F1 11 Tf
+1 0 0 1 50 676 Tm
+(placeholder:) Tj
+/F1 11 Tf
+1 0 0 1 50 657 Tm
+(- `/workshop`) Tj
+/F1 11 Tf
+1 0 0 1 50 643 Tm
+(- `/workshop/checklist`) Tj
+/F1 11 Tf
+1 0 0 1 50 629 Tm
+(- `/sales`) Tj
+/F1 11 Tf
+1 0 0 1 50 615 Tm
+(- `/renting`) Tj
+/F1 11 Tf
+1 0 0 1 50 601 Tm
+(- `/costs`) Tj
+/F1 11 Tf
+1 0 0 1 50 587 Tm
+(- `/recurring-invoices`) Tj
+/F1 11 Tf
+1 0 0 1 50 573 Tm
+(- `/documents`) Tj
+/F1 11 Tf
+1 0 0 1 50 559 Tm
+(- `/insurance`) Tj
+/F2 13 Tf
+1 0 0 1 50 540 Tm
+(9. Configuracion del usuario) Tj
+/F1 11 Tf
+1 0 0 1 50 516 Tm
+(Estas rutas vienen del bloque de configuracion adicional:) Tj
+/F1 11 Tf
+1 0 0 1 50 497 Tm
+(- `/settings/profile`) Tj
+/F1 11 Tf
+1 0 0 1 50 483 Tm
+(  Edicion de perfil desde settings.) Tj
+/F1 11 Tf
+1 0 0 1 50 469 Tm
+(- `/settings/password`) Tj
+/F1 11 Tf
+1 0 0 1 50 455 Tm
+(  Cambio de contrasena.) Tj
+/F1 11 Tf
+1 0 0 1 50 441 Tm
+(- `/settings/two-factor`) Tj
+/F1 11 Tf
+1 0 0 1 50 427 Tm
+(  Vista de autenticacion en dos pasos.) Tj
+/F2 13 Tf
+1 0 0 1 50 408 Tm
+(Resumen rapido) Tj
+/F1 11 Tf
+1 0 0 1 50 384 Tm
+(Si quieres ubicarte rapido dentro del proyecto, estas son las rutas mas) Tj
+/F1 11 Tf
+1 0 0 1 50 370 Tm
+(importantes:) Tj
+/F1 11 Tf
+1 0 0 1 50 351 Tm
+(- `/operaciones` para talleres y campa) Tj
+/F1 11 Tf
+1 0 0 1 50 337 Tm
+(- `/dashboard` para supervision del negocio) Tj
+/F1 11 Tf
+1 0 0 1 50 323 Tm
+(- `/vehicles` para la flota) Tj
+/F1 11 Tf
+1 0 0 1 50 309 Tm
+(- `/alerts` para incidencias y seguimiento) Tj
+/F1 11 Tf
+1 0 0 1 50 295 Tm
+(- `/providers` para PIN y proveedores operativos) Tj
+/F1 11 Tf
+1 0 0 1 50 281 Tm
+(- `/workshop/orders` para ordenes historicas de taller) Tj
+ET
+endstream
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000134 00000 n 
+0000000204 00000 n 
+0000000279 00000 n 
+0000000415 00000 n 
+0000003457 00000 n 
+0000003593 00000 n 
+0000006882 00000 n 
+0000007019 00000 n 
+0000009651 00000 n 
+0000009789 00000 n 
+trailer
+<< /Size 13 /Root 1 0 R >>
+startxref
+11871
+%%EOF

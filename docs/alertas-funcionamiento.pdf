@@ -1,0 +1,226 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2827 >>
+stream
+BT
+/F2 18 Tf
+1 0 0 1 54 778 Tm
+(Alertas y avisos operativos) Tj
+/F2 13 Tf
+1 0 0 1 54 749 Tm
+(Que hace este modulo) Tj
+/F1 11 Tf
+1 0 0 1 54 722 Tm
+(El sistema de alertas detecta situaciones que necesitan seguimiento) Tj
+/F1 11 Tf
+1 0 0 1 54 707 Tm
+(dentro del flujo de vehiculos. Su objetivo es avisar a tiempo, ordenar) Tj
+/F1 11 Tf
+1 0 0 1 54 692 Tm
+(prioridades y dejar trazabilidad de quien reviso cada caso.) Tj
+/F1 11 Tf
+1 0 0 1 54 671 Tm
+(En el producto hay dos puntos de lectura:) Tj
+/F1 11 Tf
+1 0 0 1 54 650 Tm
+(- Centro de alertas: vista principal para revisar y gestionar.) Tj
+/F1 11 Tf
+1 0 0 1 54 635 Tm
+(- Campanito del header: resumen corto de actividad y recordatorios.) Tj
+/F2 13 Tf
+1 0 0 1 54 614 Tm
+(Como funciona) Tj
+/F1 11 Tf
+1 0 0 1 54 587 Tm
+(El motor revisa los vehiculos y genera o actualiza alertas segun reglas) Tj
+/F1 11 Tf
+1 0 0 1 54 572 Tm
+(del negocio. Si una condicion deja de cumplirse, la alerta pendiente se) Tj
+/F1 11 Tf
+1 0 0 1 54 557 Tm
+(resuelve automaticamente.) Tj
+/F1 11 Tf
+1 0 0 1 54 536 Tm
+(La sincronizacion real se ejecuta al entrar al Centro de alertas y al) Tj
+/F1 11 Tf
+1 0 0 1 54 521 Tm
+(Dashboard.) Tj
+/F1 11 Tf
+1 0 0 1 54 500 Tm
+(Cada alerta guarda:) Tj
+/F1 11 Tf
+1 0 0 1 54 479 Tm
+(- vehiculo relacionado) Tj
+/F1 11 Tf
+1 0 0 1 54 464 Tm
+(- tipo) Tj
+/F1 11 Tf
+1 0 0 1 54 449 Tm
+(- prioridad: alta, media o baja) Tj
+/F1 11 Tf
+1 0 0 1 54 434 Tm
+(- estado: pendiente, resuelta o descartada) Tj
+/F1 11 Tf
+1 0 0 1 54 419 Tm
+(- datos de apoyo) Tj
+/F1 11 Tf
+1 0 0 1 54 404 Tm
+(- usuario y fecha de resolucion) Tj
+/F2 13 Tf
+1 0 0 1 54 383 Tm
+(Alertas activas hoy) Tj
+/F1 11 Tf
+1 0 0 1 54 356 Tm
+(1. Vehiculo vendido con seguro activo) Tj
+/F1 11 Tf
+1 0 0 1 54 341 Tm
+(Alta. Comercial. Se dispara si el vehiculo ya esta vendido y el seguro) Tj
+/F1 11 Tf
+1 0 0 1 54 326 Tm
+(sigue activo.) Tj
+/F1 11 Tf
+1 0 0 1 54 305 Tm
+(2. Vehiculo vendido con una sola llave) Tj
+/F1 11 Tf
+1 0 0 1 54 290 Tm
+(Alta. Operaciones. Se dispara si el vehiculo vendido solo tiene una) Tj
+/F1 11 Tf
+1 0 0 1 54 275 Tm
+(llave registrada.) Tj
+/F1 11 Tf
+1 0 0 1 54 254 Tm
+(3. Documentacion pendiente) Tj
+/F1 11 Tf
+1 0 0 1 54 239 Tm
+(Media. Operaciones. Se dispara si faltan documentos obligatorios, como) Tj
+/F1 11 Tf
+1 0 0 1 54 224 Tm
+(ficha tecnica o permiso de circulacion.) Tj
+/F1 11 Tf
+1 0 0 1 54 203 Tm
+(4. Cuello de botella) Tj
+/F1 11 Tf
+1 0 0 1 54 188 Tm
+(Media. Operaciones. Se dispara si la orden activa del taller supera el) Tj
+/F1 11 Tf
+1 0 0 1 54 173 Tm
+(tiempo esperado.) Tj
+/F1 11 Tf
+1 0 0 1 54 152 Tm
+(5. Salida de taller) Tj
+/F1 11 Tf
+1 0 0 1 54 137 Tm
+(Baja. Logistica. Se dispara cuando el vehiculo termina la etapa final y) Tj
+/F1 11 Tf
+1 0 0 1 54 122 Tm
+(queda pendiente de recogida.) Tj
+/F2 13 Tf
+1 0 0 1 54 101 Tm
+(Que ve el usuario) Tj
+/F1 11 Tf
+1 0 0 1 54 74 Tm
+(### Centro de alertas) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 1286 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 54 778 Tm
+(Muestra las alertas agrupadas en:) Tj
+/F1 11 Tf
+1 0 0 1 54 757 Tm
+(- Criticas) Tj
+/F1 11 Tf
+1 0 0 1 54 742 Tm
+(- Seguimiento) Tj
+/F1 11 Tf
+1 0 0 1 54 727 Tm
+(- Operativas) Tj
+/F1 11 Tf
+1 0 0 1 54 706 Tm
+(Desde ahi el usuario puede filtrar, ejecutar la accion principal,) Tj
+/F1 11 Tf
+1 0 0 1 54 691 Tm
+(resolver o descartar.) Tj
+/F1 11 Tf
+1 0 0 1 54 670 Tm
+(### Campanito de avisos) Tj
+/F1 11 Tf
+1 0 0 1 54 649 Tm
+(El menu superior mezcla:) Tj
+/F1 11 Tf
+1 0 0 1 54 628 Tm
+(- recordatorios de alertas pendientes) Tj
+/F1 11 Tf
+1 0 0 1 54 613 Tm
+(- vehiculos pendientes de recogida) Tj
+/F1 11 Tf
+1 0 0 1 54 598 Tm
+(- incidencias marcadas) Tj
+/F1 11 Tf
+1 0 0 1 54 583 Tm
+(- vehiculos que quedaron disponibles) Tj
+/F2 13 Tf
+1 0 0 1 54 562 Tm
+(Resumen) Tj
+/F1 11 Tf
+1 0 0 1 54 535 Tm
+(Hoy este modulo ya ayuda a:) Tj
+/F1 11 Tf
+1 0 0 1 54 514 Tm
+(- evitar que un vehiculo vendido siga con incidencias abiertas) Tj
+/F1 11 Tf
+1 0 0 1 54 499 Tm
+(- detectar bloqueos en taller) Tj
+/F1 11 Tf
+1 0 0 1 54 484 Tm
+(- recordar recogidas pendientes) Tj
+/F1 11 Tf
+1 0 0 1 54 469 Tm
+(- seguir documentacion incompleta) Tj
+/F1 11 Tf
+1 0 0 1 54 454 Tm
+(- dar visibilidad rapida en el campanito y gestion formal en el Centro) Tj
+/F1 11 Tf
+1 0 0 1 54 439 Tm
+(  de alertas) Tj
+ET
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000000266 00000 n 
+0000000402 00000 n 
+0000003281 00000 n 
+0000003417 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+4755
+%%EOF
