@@ -4,39 +4,48 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-
-
-
         // Datos maestros
         $this->call([
             RolePermissionSeeder::class,
+            CategorySeeder::class,
+            ProductSeeder::class,
+            GenericCustomerSeeder::class,
         ]);
 
         // Usuarios de ejemplo
-        $test = User::updateOrCreate(
-            ['email' => 'test@example.com'],
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@sublimacion.test'],
             [
-                'name' => 'Test User',
+                'name' => 'Admin',
                 'password' => bcrypt('password'),
                 'active' => true,
             ],
         );
-        $test->syncRoles(['Admin']);
+        $admin->syncRoles(['Admin']);
 
-        $makoto = User::updateOrCreate(
-            ['email' => 'makoto@gmail.com'],
+        $empleado = User::updateOrCreate(
+            ['email' => 'empleado@sublimacion.test'],
             [
-                'name' => 'Makoto Shinkai',
-                'password' => bcrypt('30138067'),
+                'name' => 'Empleado',
+                'password' => bcrypt('password'),
                 'active' => true,
             ],
         );
-        $makoto->syncRoles(['SuperAdmin']);
+        $empleado->syncRoles(['Empleado']);
+
+        $cliente = User::updateOrCreate(
+            ['email' => 'cliente@sublimacion.test'],
+            [
+                'name' => 'Cliente',
+                'password' => bcrypt('password'),
+                'active' => true,
+            ],
+        );
+        $cliente->syncRoles(['Cliente']);
     }
 }

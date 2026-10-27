@@ -226,13 +226,6 @@
                                     <p
                                         class="text-theme-xs font-medium tracking-[0.18em] text-slate-400 uppercase dark:text-slate-500"
                                     >
-                                        Empresa
-                                    </p>
-                                </th>
-                                <th class="px-5 py-3 text-left sm:px-6">
-                                    <p
-                                        class="text-theme-xs font-medium tracking-[0.18em] text-slate-400 uppercase dark:text-slate-500"
-                                    >
                                         Roles
                                     </p>
                                 </th>
@@ -269,9 +262,6 @@
                                 </td>
                                 <td class="px-5 py-4 text-theme-sm sm:px-6">
                                     {{ user.email }}
-                                </td>
-                                <td class="px-5 py-4 text-theme-sm sm:px-6">
-                                    {{ user.company?.name || '' }}
                                 </td>
                                 <td class="px-5 py-4 text-theme-sm sm:px-6">
                                     {{
@@ -351,6 +341,27 @@
                                             </svg>
                                             Eliminar
                                         </button>
+                                        <button
+                                            type="button"
+                                            v-if="can('users.impersonate') && !isAdminUser(user)"
+                                            @click="userToImpersonate = user"
+                                            class="inline-flex items-center gap-1 rounded-xl border border-amber-200 px-3 py-1.5 text-theme-xs font-semibold text-amber-600 transition hover:bg-amber-50 dark:border-amber-500/30 dark:text-amber-300 dark:hover:bg-amber-500/10"
+                                        >
+                                            <svg
+                                                class="h-4 w-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M8 7a4 4 0 118 0 4 4 0 01-8 0zM12 15c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5zM17 8l2 2 4-4"
+                                                />
+                                            </svg>
+                                            Impersonar
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -427,6 +438,15 @@
                 </div>
             </div>
         </div>
+
+        <ConfirmDialog
+            v-if="userToImpersonate"
+            title="Impersonar usuario"
+            :message="`Vas a entrar como ${userToImpersonate.name}. Podrás volver a tu cuenta en cualquier momento.`"
+            confirm-label="Impersonar"
+            @confirm="confirmImpersonate"
+            @cancel="userToImpersonate = null"
+        />
     </AdminLayout>
 </template>
 
@@ -435,6 +455,7 @@ import { ref, computed, watch, onBeforeUnmount, defineComponent, h } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 const page = usePage<{
     auth: {
         user: any;
@@ -462,7 +483,6 @@ interface Props {
             name: string;
             email: string;
             active: boolean;
-            company?: { id: number; name: string } | null;
             roles?: Array<{ id: number; name: string }>;
         }>;
         current_page: number;
@@ -564,6 +584,20 @@ const deleteUser = (user: Props['users']['data'][number]) => {
     if (confirm(`¿Eliminar usuario ${user.name}?`)) {
         router.delete(`/users/${user.id}`);
     }
+};
+
+const isAdminUser = (user: Props['users']['data'][number]): boolean =>
+    user.roles?.some((role) => role.name === 'Admin') ?? false;
+
+const userToImpersonate = ref<Props['users']['data'][number] | null>(null);
+
+const confirmImpersonate = () => {
+    if (!userToImpersonate.value) return;
+    router.post(`/impersonate/${userToImpersonate.value.id}`, {}, {
+        onFinish: () => {
+            userToImpersonate.value = null;
+        },
+    });
 };
 
 function icon(path: string) {

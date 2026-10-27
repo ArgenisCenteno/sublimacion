@@ -60,24 +60,28 @@
                         />
                     </div>
 
-                    <!-- EMPRESA -->
+                    <!-- TELEFONO -->
                     <div class="field-reveal">
-                        <label class="label">Empresa</label>
-                        <select
-                            v-model="form.company_id"
-                            :class="inputClass(form.errors.company_id)"
-                        >
-                            <option :value="null">— Sin empresa —</option>
-                            <option
-                                v-for="company in companies"
-                                :key="company.id"
-                                :value="company.id"
-                            >
-                                {{ company.name }}
-                            </option>
-                        </select>
-                        <p v-if="form.errors.company_id" class="mt-1 text-sm text-red-500">
-                            {{ form.errors.company_id }}
+                        <label class="label">Teléfono</label>
+                        <input
+                            v-model="form.phone"
+                            :class="inputClass(form.errors.phone)"
+                        />
+                        <p v-if="form.errors.phone" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.phone }}
+                        </p>
+                    </div>
+
+                    <!-- CEDULA/RIF -->
+                    <div class="field-reveal">
+                        <label class="label">Cédula/RIF</label>
+                        <input
+                            v-model="form.cedula_rif"
+                            placeholder="V-12345678"
+                            :class="inputClass(form.errors.cedula_rif)"
+                        />
+                        <p v-if="form.errors.cedula_rif" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.cedula_rif }}
                         </p>
                     </div>
 
@@ -91,17 +95,6 @@
                             <option :value="true">Activo</option>
                             <option :value="false">Inactivo</option>
                         </select>
-                    </div>
-
-                    <!-- VER TODAS LAS EMPRESAS -->
-                    <div class="field-reveal">
-                        <label class="inline-flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                v-model="form.can_view_all_companies"
-                            />
-                            Puede ver todas las empresas
-                        </label>
                     </div>
 
                     <!-- ROLES -->
@@ -155,28 +148,26 @@ interface UserForm {
     email: string;
     password: string;
     password_confirmation: string;
-    company_id: number | null;
+    phone: string;
+    cedula_rif: string;
     roles: number[];
-    can_view_all_companies: boolean;
     active: boolean | string;
 }
 
 const props = defineProps<{
     allRoles: Array<{ id: number; name: string }>;
-    companies: Array<{ id: number; name: string }>;
 }>();
 
 const allRoles = ref(props.allRoles);
-const companies = ref(props.companies);
 
 const form = useForm<UserForm>({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
-    company_id: null,
+    phone: '',
+    cedula_rif: '',
     roles: [],
-    can_view_all_companies: false,
     active: true,
 });
 

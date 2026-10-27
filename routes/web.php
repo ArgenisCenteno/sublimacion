@@ -1,20 +1,29 @@
 <?php
 
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BankDepositController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CashShiftController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\AlertController;
-use App\Http\Controllers\OperationsAccessController;
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ImpersonateController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\PosController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReconciliationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\VehicleController;
-use App\Http\Controllers\WorkshopOrderController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // Rutas publicas
 Route::inertia('/', 'Landing')->name('home');
@@ -23,82 +32,92 @@ Route::inertia('404', 'Errors/FourZeroFour')->name('404');
 Route::inertia('privacidad', 'Legal/Privacidad')->name('legal.privacidad');
 Route::inertia('cookies', 'Legal/Cookies')->name('legal.cookies');
 Route::inertia('terminos', 'Legal/Terminos')->name('legal.terminos');
-Route::prefix('operaciones')->controller(OperationsAccessController::class)->group(function () {
-    Route::get('/', 'index')->name('ops.index');
-    Route::post('access', 'authenticate')->name('ops.authenticate');
 
-    Route::get('chapa', 'chapa')->name('ops.chapa');
-    Route::post('chapa/analyze-plate', 'analyzeChapaPlate')->name('ops.chapa.analyze-plate');
-    Route::post('chapa/confirm-reception', 'confirmChapaReception')->name('ops.chapa.confirm-reception');
-    Route::post('chapa/report-mapped-damage', 'reportChapaMappedDamage')->name('ops.chapa.report-mapped-damage');
-    Route::post('chapa/report-incident', 'reportChapaIncident')->name('ops.chapa.report-incident');
-    Route::post('chapa/finish-repair', 'finishChapaRepair')->name('ops.chapa.finish-repair');
+Route::get('catalogo', [CatalogController::class, 'index'])->name('catalogo.index');
+Route::get('catalogo/{product:slug}', [CatalogController::class, 'show'])->name('catalogo.show');
 
-    Route::get('dab', 'dab')->name('ops.dab');
-    Route::post('dab/analyze-plate', 'analyzeDabPlate')->name('ops.dab.analyze-plate');
-    Route::post('dab/confirm-reception', 'confirmDabReception')->name('ops.dab.confirm-reception');
-    Route::post('dab/report-mapped-damage', 'reportDabMappedDamage')->name('ops.dab.report-mapped-damage');
-    Route::post('dab/checklist-item', 'updateDabChecklistItem')->name('ops.dab.checklist-item');
-    Route::post('dab/finish-review', 'finishDabReview')->name('ops.dab.finish-review');
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-    Route::get('limpieza', 'limpieza')->name('ops.limpieza');
-    Route::post('limpieza/analyze-plate', 'analyzeLimpiezaPlate')->name('ops.limpieza.analyze-plate');
-    Route::post('limpieza/confirm-reception', 'confirmLimpiezaReception')->name('ops.limpieza.confirm-reception');
-    Route::post('limpieza/report-mapped-damage', 'reportLimpiezaMappedDamage')->name('ops.limpieza.report-mapped-damage');
-    Route::post('limpieza/finish-cleaning', 'finishLimpiezaCleaning')->name('ops.limpieza.finish-cleaning');
-
-    Route::get('recepcion', 'recepcion')->name('ops.recepcion');
-    Route::post('recepcion/analyze-plate', 'analyzeRecepcionPlate')->name('ops.recepcion.analyze-plate');
-    Route::post('recepcion/create-vehicle', 'createRecepcionVehicle')->name('ops.recepcion.create-vehicle');
-    Route::post('recepcion/report-mapped-damage', 'reportRecepcionMappedDamage')->name('ops.recepcion.report-mapped-damage');
-    Route::post('recepcion/release-vehicle', 'releaseRecepcionVehicle')->name('ops.recepcion.release-vehicle');
-});
+Route::post('webhooks/paypal', [PayPalController::class, 'webhook'])->name('paypal.webhook');
 
 // Rutas protegidas
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    Route::get('dashboard/drilldown', [DashboardController::class, 'drilldown'])->name('dashboard.drilldown');
-
-    // Flota
-    Route::post('vehicles/import', [VehicleController::class, 'import'])->name('vehicles.import');
-    Route::post('vehicles/{vehicle}/documents', [VehicleController::class, 'storeDocument'])->name('vehicles.documents.store');
-    Route::get('vehicles/{vehicle}/documents/{document}/download', [VehicleController::class, 'downloadDocument'])->name('vehicles.documents.download');
-    Route::resource('vehicles', VehicleController::class);
-    Route::resource('companies', CompanyController::class);
-    Route::resource('providers', ProviderController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
+    Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('products', ProductController::class);
+    Route::post('products/{product}/images', [ProductController::class, 'storeImage'])->name('products.images.store');
+    Route::delete('products/{product}/images/{image}', [ProductController::class, 'destroyImage'])->name('products.images.destroy');
+
+    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('cart/items', [CartController::class, 'store'])->name('cart.items.store');
+    Route::patch('cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.items.update');
+    Route::delete('cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+
+    Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    Route::get('pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('pedidos/{order}/payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::post('pedidos/{order}/paypal/create', [PayPalController::class, 'createOrder'])->name('paypal.create');
+    Route::post('pedidos/{order}/paypal/capture', [PayPalController::class, 'captureOrder'])->name('paypal.capture');
+
+    Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('orders/{order}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
+    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
+
+    Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::post('payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
+    Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+
+    Route::resource('bank-deposits', BankDepositController::class)->except(['show']);
+
+    Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+    Route::get('receipts/{receipt}/pdf', [ReceiptController::class, 'pdf'])->name('receipts.pdf');
+    Route::post('receipts/{receipt}/void', [ReceiptController::class, 'void'])->name('receipts.void');
+
+    Route::get('conciliacion', [ReconciliationController::class, 'index'])->name('reconciliation.index');
+    Route::post('conciliacion/{payment}/link', [ReconciliationController::class, 'link'])->name('reconciliation.link');
+
+    Route::get('settings/exchange-rate', [SettingController::class, 'edit'])->name('settings.exchange-rate.edit');
+    Route::put('settings/exchange-rate', [SettingController::class, 'update'])->name('settings.exchange-rate.update');
+
+    Route::get('settings/tienda', [SettingController::class, 'store'])->name('settings.store.edit');
+    Route::post('settings/tienda', [SettingController::class, 'updateStore'])->name('settings.store.update');
+
+    Route::get('pos', [PosController::class, 'index'])->name('pos.index');
+    Route::get('pos/customers/search', [PosController::class, 'searchCustomers'])->name('pos.customers.search');
+    Route::post('pos/shifts', [PosController::class, 'storeShift'])->name('pos.shifts.store');
+    Route::post('pos/shifts/{shift}/close', [PosController::class, 'closeShift'])->name('pos.shifts.close');
+    Route::post('pos/sale', [PosController::class, 'storeSale'])->name('pos.sale');
+
+    Route::get('cash-shifts', [CashShiftController::class, 'index'])->name('cash-shifts.index');
+    Route::get('cash-shifts/{shift}', [CashShiftController::class, 'show'])->name('cash-shifts.show');
+    Route::post('cash-shifts/{shift}/reopen', [CashShiftController::class, 'reopen'])->name('cash-shifts.reopen');
+
+    Route::get('reportes', [ReportController::class, 'dashboard'])->name('reports.dashboard');
+    Route::get('reportes/ventas', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('reportes/financieros', [ReportController::class, 'financial'])->name('reports.financial');
+    Route::get('reportes/clientes', [ReportController::class, 'customers'])->name('reports.customers');
+    Route::get('reportes/inventario', [ReportController::class, 'inventory'])->name('reports.inventory');
+    Route::get('reportes/envios', [ReportController::class, 'shipping'])->name('reports.shipping');
+
+    Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+    Route::post('impersonate/leave', [ImpersonateController::class, 'leave'])->name('impersonate.leave');
+    Route::post('impersonate/{user}', [ImpersonateController::class, 'take'])->name('impersonate.take');
+
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+
     Route::get('profile', [UserController::class, 'profile'])->name('users.profile');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('users.profile.update-password');
     Route::post('/profile/avatar', [UserController::class, 'updateAvatar'])->name('profile.avatar');
     Route::delete('/profile/avatar', [UserController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
-    Route::resource('invoices', InvoiceController::class);
-    Route::get('/export-invoices', [ExportController::class, 'exportCsv'])->name('invoices.export');
-    Route::get('/export-zip-invoices', [ExportController::class, 'exportZip'])->name('invoices.export.zip');
-    // Taller
-    Route::get('workshop', fn() => Inertia::render('PlaceholderPage', ['title' => 'Taller']))->name('workshop.index');
-    Route::resource('workshop/orders', WorkshopOrderController::class)->names('workshop.orders');
-    Route::get('workshop/checklist', fn() => Inertia::render('PlaceholderPage', ['title' => 'Checklist DAB']))->name('workshop.checklist');
-
-    // Clientes y ventas
-    Route::resource('clients', ClientController::class);
-    Route::get('sales', fn() => Inertia::render('PlaceholderPage', ['title' => 'Contratos de venta']))->name('sales.index');
-    Route::get('renting', fn() => Inertia::render('PlaceholderPage', ['title' => 'Contratos de renting']))->name('renting.index');
-
-    // Finanzas
-    //Route::get('invoices', fn() => Inertia::render('PlaceholderPage', ['title' => 'Facturas proveedor']))->name('invoices.index');
-    Route::get('costs', fn() => Inertia::render('PlaceholderPage', ['title' => 'Costes']))->name('costs.index');
-    Route::get('recurring-invoices', fn() => Inertia::render('PlaceholderPage', ['title' => 'Facturacion recurrente']))->name('recurring-invoices.index');
-
-    // Documentacion
-    Route::get('documents', fn() => Inertia::render('PlaceholderPage', ['title' => 'Documentos vehiculo']))->name('documents.index');
-    Route::get('insurance', fn() => Inertia::render('PlaceholderPage', ['title' => 'Polizas de seguro']))->name('insurance.index');
-
-    // Administración
-    // Route::get('users', fn() => Inertia::render('PlaceholderPage', ['title' => 'Usuarios']))->name('users.index');
 
     // Others
     Route::inertia('calendar', 'Others/Calendar')->name('calendar');
@@ -115,10 +134,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('line-chart', 'Chart/LineChart/LineChart')->name('line-chart');
 
     // UI Elements
-    Route::get('alerts', [AlertController::class, 'index'])->name('alerts');
-    Route::post('alerts/{alert}/action', [AlertController::class, 'runAction'])->name('alerts.action');
-    Route::post('alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
-    Route::post('alerts/{alert}/dismiss', [AlertController::class, 'dismiss'])->name('alerts.dismiss');
     Route::inertia('avatars', 'UiElements/Avatars')->name('avatars');
     Route::inertia('badges', 'UiElements/Badges')->name('badges');
     Route::inertia('buttons', 'UiElements/Buttons')->name('buttons');

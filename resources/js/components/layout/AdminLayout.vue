@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen xl:flex">
+    <ImpersonateBanner />
     <app-sidebar />
     <Backdrop />
     <div
@@ -19,5 +20,6 @@ import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
 import { useSidebar } from '@/composables/useSidebar'
 import Backdrop from './Backdrop.vue'
+import ImpersonateBanner from './ImpersonateBanner.vue'
 const { isExpanded, isHovered } = useSidebar()
 </script>

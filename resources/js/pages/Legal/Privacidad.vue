@@ -3,7 +3,7 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">1. Introducción</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        En [Nombre de la empresa] nos tomamos en serio la protección de tus datos personales. Esta política explica
+        En {{ storeName }} nos tomamos en serio la protección de tus datos personales. Esta política explica
         qué datos recopilamos, para qué los usamos y qué derechos tienes sobre ellos.
       </p>
     </div>
@@ -68,12 +68,18 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">9. Contacto</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        Si tienes dudas sobre esta política, contáctanos por WhatsApp al [número de contacto].
+        Si tienes dudas sobre esta política, contáctanos por WhatsApp al {{ contactPhone }}.
       </p>
     </div>
   </LegalLayout>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import LegalLayout from '@/components/layout/LegalLayout.vue'
+
+const page = usePage<{ store: { name: string; social: { whatsapp: string | null } } }>()
+const storeName = computed(() => page.props.store.name)
+const contactPhone = computed(() => page.props.store.social.whatsapp ?? 'nuestro número de contacto')
 </script>

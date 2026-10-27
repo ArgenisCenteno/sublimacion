@@ -31,7 +31,17 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        {{-- Colores de marca configurables desde /settings/tienda (sección 15/18 del plan) --}}
+        @php($storeSettings = \App\Models\StoreSetting::current())
+        <style>
+            :root {
+                --color-primary: {{ $storeSettings->color_primary }};
+                --color-secondary: {{ $storeSettings->color_secondary }};
+            }
+        </style>
+
+        <title inertia>{{ $storeSettings->store_name ?: config('app.name', 'Laravel') }}</title>
+        <meta name="description" content="{{ $storeSettings->store_slogan ?: 'Tienda de sublimación: productos y servicios personalizados.' }}">
 
         <link rel="icon" href="/images/logo/logo-icon.svg" sizes="any">
         <link rel="icon" href="/images/logo/logo-icon.svg" type="image/svg+xml">

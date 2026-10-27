@@ -33,7 +33,7 @@
     >
       <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
         <div>
-          <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Avisos</h5>
+          <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notificaciones</h5>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {{ notificationCountLabel }}
           </p>
@@ -60,10 +60,11 @@
 
       <ul v-if="notifications.length" class="flex h-auto flex-col overflow-y-auto custom-scrollbar">
         <li v-for="notification in notifications" :key="notification.id">
-          <Link
-            :href="notification.href || '#'"
-            class="flex gap-3 rounded-lg border-b border-gray-100 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            @click="closeDropdown"
+          <button
+            type="button"
+            class="flex w-full gap-3 rounded-lg border-b border-gray-100 px-4.5 py-3 text-left hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
+            :class="{ 'bg-indigo-50/60 dark:bg-indigo-500/5': !notification.read }"
+            @click="openNotification(notification)"
           >
             <span
               class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -99,7 +100,7 @@
                 <span>{{ notification.time }}</span>
               </span>
             </span>
-          </Link>
+          </button>
         </li>
       </ul>
 
@@ -107,36 +108,38 @@
         v-else
         class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 px-6 text-center dark:border-gray-700"
       >
-        <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Sin avisos por ahora</p>
+        <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Sin notificaciones por ahora</p>
         <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-          Cuando el sistema detecte actividad importante, la verás aquí.
+          Cuando haya actividad importante, la verás aquí.
         </p>
       </div>
 
-      <Link
-        href="/alerts"
+      <button
+        v-if="hasNotifications"
+        type="button"
         class="mt-3 flex justify-center rounded-lg border border-gray-300 bg-white p-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-        @click="closeDropdown"
+        @click="markAllRead"
       >
-        Ver centro de alertas
-      </Link>
+        Marcar todas como leídas
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 
 interface NotificationItem {
   id: string
-  kind: 'alert' | 'pickup' | 'damage' | 'available'
+  kind: 'order' | 'payment' | 'stock' | 'receipt'
   tone: 'rose' | 'amber' | 'emerald' | 'sky'
   label: string
   title: string
   message: string
   time: string
   href: string | null
+  read: boolean
 }
 
 const page = usePage<{
@@ -156,14 +159,14 @@ const notificationCountLabel = computed(() => {
   const count = notificationState.value.count ?? 0
 
   if (count === 0) {
-    return 'No hay avisos pendientes.'
+    return 'No hay notificaciones pendientes.'
   }
 
   if (count === 1) {
-    return '1 aviso reciente'
+    return '1 notificación sin leer'
   }
 
-  return `${count} avisos recientes`
+  return `${count} notificaciones sin leer`
 })
 
 const toggleDropdown = () => {
@@ -180,11 +183,27 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+const openNotification = (notification: NotificationItem) => {
+  if (!notification.read) {
+    router.post(`/notifications/${notification.id}/read`, {}, { preserveScroll: true, preserveState: true });
+  }
+
+  closeDropdown();
+
+  if (notification.href) {
+    router.visit(notification.href);
+  }
+}
+
+const markAllRead = () => {
+  router.post('/notifications/read-all', {}, { preserveScroll: true, preserveState: true });
+}
+
 const iconPath = (kind: NotificationItem['kind']) => ({
-  alert: 'M12 9v4.5m0 3h.008v.008H12v-.008zM10.29 3.86L1.82 18a1.875 1.875 0 001.61 2.81h16.94A1.875 1.875 0 0021.98 18L13.51 3.86a1.875 1.875 0 00-3.22 0z',
-  pickup: 'M3.75 12h16.5M12 3.75l8.25 8.25L12 20.25 3.75 12 12 3.75z',
-  damage: 'M14.25 9.75L9.75 14.25M9.75 9.75l4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-  available: 'M5 13l4 4L19 7',
+  order: 'M20 13V7a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 7v10a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0020 17V13z',
+  payment: 'M3 10h18M7 15h1m4 0h1m-9 4h16a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+  stock: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+  receipt: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
 }[kind])
 
 const iconWrapperClass = (tone: NotificationItem['tone']) => ({

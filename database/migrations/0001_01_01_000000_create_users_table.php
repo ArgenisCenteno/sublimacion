@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -22,7 +21,6 @@ return new class extends Migration
             $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->enum('role', ['admin', 'gerencia', 'comercial', 'operario', 'financiero', 'gestoria', 'gestor_externo'])->default('comercial');
-            $table->boolean('can_view_all_companies')->default(false);
             $table->boolean('active')->default(true);
             $table->rememberToken();
             $table->timestamps();

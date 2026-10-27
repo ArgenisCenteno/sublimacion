@@ -8,8 +8,8 @@
       <div class="mt-6 grid gap-4 sm:grid-cols-2">
         <InfoField label="Nombre" :value="user.name" />
         <InfoField label="Email" :value="user.email" />
-        <InfoField label="Empresa" :value="user.company?.name || 'No asignada'" />
-        <InfoField label="Puede ver todas las empresas" :value="user.can_view_all_companies ? 'Sí' : 'No'" />
+        <InfoField label="Teléfono" :value="user.phone || '—'" />
+        <InfoField label="Cédula/RIF" :value="user.cedula_rif || '—'" />
         <InfoField label="Estado" :value="user.active ? 'Activo' : 'Inactivo'" />
         <InfoField label="Roles" :value="user.roles.length ? user.roles.map(r => r.name).join(', ') : 'Sin roles'" />
         <InfoField label="Fecha de creación" :value="user.created_at" />
@@ -26,11 +26,6 @@
             title="Estado"
             :value="user.active ? 'Activo' : 'Inactivo'"
             :class-name="user.active ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-400'"
-          />
-          <StatusPill
-            title="Acceso a todas las empresas"
-            :value="user.can_view_all_companies ? 'Sí' : 'No'"
-            :class-name="user.can_view_all_companies ? 'bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400'"
           />
         </div>
       </div>
@@ -61,9 +56,9 @@ interface User {
   id: number;
   name: string;
   email: string;
-  company?: { id: number; name: string };
+  phone?: string | null;
+  cedula_rif?: string | null;
   roles: Role[];
-  can_view_all_companies: boolean;
   active: boolean;
   created_at: string;
   updated_at: string;

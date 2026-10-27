@@ -4,26 +4,28 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, SoftDeletes, HasRoles;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, SoftDeletes, HasRoles, Impersonate;
 
     protected $fillable = [
-        'company_id',
         'name',
         'email',
         'password',
-        'can_view_all_companies',
         'active',
         'avatar_url',
+        'phone',
+        'cedula_rif',
     ];
 
     protected $hidden = [
@@ -39,28 +41,42 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
-            'can_view_all_companies' => 'boolean',
             'active' => 'boolean',
         ];
     }
 
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole('SuperAdmin');
-    }
-
     public function isAdmin(): bool
     {
-        return $this->hasAnyRole(['Admin', 'SuperAdmin']);
+        return $this->hasRole('Admin');
     }
 
-    public function canViewAllCompanies(): bool
+    public function isEmpleado(): bool
     {
-        return $this->can_view_all_companies || $this->isAdmin();
+        return $this->hasRole('Empleado');
+    }
+
+    public function isCliente(): bool
+    {
+        return $this->hasRole('Cliente');
+    }
+
+    public function canImpersonate(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        return ! $this->isAdmin();
+    }
+
+    public function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }

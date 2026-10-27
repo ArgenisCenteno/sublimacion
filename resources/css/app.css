@@ -5,6 +5,11 @@ layer(base);
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  --color-primary: #42AAAB;
+  --color-secondary: #358C8D;
+}
+
 @theme {
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;

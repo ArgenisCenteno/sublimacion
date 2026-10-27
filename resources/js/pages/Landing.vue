@@ -1,5 +1,7 @@
 <template>
-  <Head title="[Nombre de la empresa]" />
+  <Head :title="store.name">
+    <meta name="description" :content="store.slogan || `${store.name} — sublimación de productos y servicios personalizados.`" />
+  </Head>
 
   <Transition name="fade">
     <div
@@ -20,9 +22,12 @@
       >
         <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-8">
           <a href="#inicio" @click="handleNavClick($event, '#inicio')" class="flex items-center gap-2.5">
+            <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-full object-cover" />
             <span
-              class="flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-300"
-              :class="scrolled ? 'bg-[#42AAAB] text-white' : 'bg-white/15 text-white ring-1 ring-white/30'"
+              v-else
+              class="flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors duration-300"
+              :class="scrolled ? '' : 'ring-1 ring-white/30'"
+              :style="{ backgroundColor: scrolled ? 'var(--color-primary)' : 'rgba(255,255,255,0.15)' }"
             >
               <Building2 class="h-5 w-5" />
             </span>
@@ -30,7 +35,7 @@
               class="text-lg font-semibold transition-colors duration-300"
               :class="scrolled ? 'text-gray-800 dark:text-white' : 'text-white'"
             >
-              [Nombre de la empresa]
+              {{ store.name }}
             </span>
           </a>
 
@@ -41,13 +46,14 @@
               :href="link.href"
               @click="handleNavClick($event, link.href)"
               class="text-sm font-medium transition-colors duration-300"
-              :class="scrolled ? 'text-gray-600 hover:text-[#358C8D] dark:text-gray-300 dark:hover:text-[#42AAAB]' : 'text-white/85 hover:text-white'"
+              :class="scrolled ? 'text-gray-600 hover:text-[var(--color-secondary)] dark:text-gray-300 dark:hover:text-[var(--color-primary)]' : 'text-white/85 hover:text-white'"
             >
               {{ link.label }}
             </a>
           </nav>
 
           <div class="hidden items-center gap-3 lg:flex">
+            <CartLink :link-class="scrolled ? '' : 'text-white/85 hover:text-white'" />
             <Link
               href="/signin"
               class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-300"
@@ -63,7 +69,7 @@
               :href="whatsappHref"
               target="_blank"
               rel="noopener"
-              class="flex items-center gap-2 rounded-lg bg-[#42AAAB] px-4 py-2 text-sm font-medium text-white shadow-theme-xs transition hover:bg-[#358C8D]"
+              class="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white shadow-theme-xs transition hover:bg-[var(--color-secondary)]"
             >
               <WhatsAppIcon class="h-4 w-4" />
               Escríbenos
@@ -159,7 +165,7 @@
             </div>
 
             <p class="mt-5 max-w-lg text-base text-white/80 sm:text-lg">
-              En [Nombre de la empresa] ofrecemos [descripción breve de tu servicio o producto] con tecnología
+              En {{ store.name }} ofrecemos [descripción breve de tu servicio o producto] con tecnología
               moderna, personal capacitado y atención cercana, para darte resultados precisos y a tiempo.
             </p>
             <div class="mt-8 flex flex-wrap items-center gap-4">
@@ -360,7 +366,7 @@
                 <Award class="h-4 w-4" />
                 Nuestros diferenciales
               </span>
-              <h3 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">Por qué elegir [Nombre de la empresa]</h3>
+              <h3 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">Por qué elegir {{ store.name }}</h3>
               <p class="mt-3 text-gray-500 dark:text-gray-400">
                 Cuatro razones por las que nuestros clientes confían en nosotros.
               </p>
@@ -576,11 +582,11 @@
                   Envíanos tus dudas o solicitudes y te responderemos a la brevedad.
                 </p>
                 <a
-                  href="mailto:[Correo electrónico]"
+                  :href="`mailto:${contactEmail}`"
                   class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
                 >
                   <Mail class="h-5 w-5" />
-                  [Correo electrónico]
+                  {{ contactEmail }}
                 </a>
               </div>
             </div>
@@ -649,14 +655,26 @@
           <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div class="flex items-center gap-2.5">
-                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[#42AAAB] text-white">
+                <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-full object-cover" />
+                <span v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
                   <Building2 class="h-5 w-5" />
                 </span>
-                <span class="text-lg font-semibold text-white">[Nombre de la empresa]</span>
+                <span class="text-lg font-semibold text-white">{{ store.name }}</span>
               </div>
               <p class="mt-4 max-w-xs text-sm text-gray-400">
-                Empresa comprometida con un servicio confiable y una atención cercana.
+                {{ store.slogan || 'Empresa comprometida con un servicio confiable y una atención cercana.' }}
               </p>
+              <div v-if="store.social.instagram || store.social.facebook || store.social.tiktok" class="mt-4 flex items-center gap-3">
+                <a v-if="store.social.instagram" :href="store.social.instagram" target="_blank" rel="noopener" aria-label="Instagram" class="text-gray-400 transition hover:text-white">
+                  <Instagram class="h-5 w-5" />
+                </a>
+                <a v-if="store.social.facebook" :href="store.social.facebook" target="_blank" rel="noopener" aria-label="Facebook" class="text-gray-400 transition hover:text-white">
+                  <Facebook class="h-5 w-5" />
+                </a>
+                <a v-if="store.social.tiktok" :href="store.social.tiktok" target="_blank" rel="noopener" aria-label="TikTok" class="text-gray-400 transition hover:text-white">
+                  <TikTokIcon class="h-5 w-5" />
+                </a>
+              </div>
             </div>
 
             <div>
@@ -701,7 +719,7 @@
           </div>
 
           <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-            <p class="text-xs text-gray-500">&copy; {{ year }} [Nombre de la empresa]. Todos los derechos reservados.</p>
+            <p class="text-xs text-gray-500">&copy; {{ year }} {{ store.name }}. Todos los derechos reservados.</p>
             <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <Link href="/privacidad" class="text-xs text-gray-500 transition hover:text-white">Privacidad</Link>
               <Link href="/cookies" class="text-xs text-gray-500 transition hover:text-white">Cookies</Link>
@@ -761,7 +779,7 @@
 
 <script setup lang="ts">
 import { ref, computed, h, onMounted, onUnmounted } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import ThemeToggler from '@/components/common/ThemeToggler.vue'
 import { useTheme } from '@/components/layout/ThemeProvider.vue'
@@ -791,6 +809,8 @@ import {
   ChevronDown,
   Sun,
   Moon,
+  Instagram,
+  Facebook,
 } from 'lucide-vue-next'
 
 const { toggleTheme } = useTheme()
@@ -918,28 +938,41 @@ const vReveal = {
 
 const year = new Date().getFullYear()
 
-const whatsappNumber = '[Teléfono]'
+const page = usePage<{
+  store: {
+    name: string
+    slogan: string | null
+    logoUrl: string | null
+    social: { instagram: string | null; facebook: string | null; tiktok: string | null; whatsapp: string | null }
+    contact: { email: string | null; address: string | null }
+  }
+}>()
+const store = computed(() => page.props.store)
+const contactEmail = computed(() => store.value.contact.email ?? '')
+
+const whatsappNumber = computed(() => store.value.social.whatsapp ?? '')
 const whatsappMessage = 'Hola, quisiera información sobre sus servicios.'
 const whatsappHref = computed(
-  () => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
+  () => `https://wa.me/${whatsappNumber.value}?text=${encodeURIComponent(whatsappMessage)}`
 )
-const whatsappDisplay = '[Teléfono]'
+const whatsappDisplay = computed(() => store.value.social.whatsapp ?? 'Contáctanos')
 
 const contactForm = ref({ nombre: '', correo: '', telefono: '', mensaje: '' })
 const handleContactSubmit = () => {
   // Pendiente: conectar con el backend de envío del formulario.
 }
 
-const direccionEmpresa = '[Dirección]'
+const direccionEmpresa = computed(() => store.value.contact.address ?? '')
 const mapsHref = computed(
-  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionEmpresa)}`
+  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionEmpresa.value)}`
 )
 const mapsEmbedSrc = computed(
-  () => `https://www.google.com/maps?q=${encodeURIComponent(direccionEmpresa)}&output=embed`
+  () => `https://www.google.com/maps?q=${encodeURIComponent(direccionEmpresa.value)}&output=embed`
 )
 
 const navLinks = [
   { href: '#inicio', label: 'Inicio' },
+  { href: '/catalogo', label: 'Catálogo' },
   { href: '#servicios', label: 'Servicios' },
   { href: '#nosotros', label: 'Nosotros' },
   { href: '#galeria', label: 'Galería' },
@@ -956,6 +989,17 @@ const WhatsAppIcon = (props: { class?: string }) =>
     [
       h('path', {
         d: 'M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.26 4.9L2 22l5.25-1.28A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm0 18.2c-1.6 0-3.1-.43-4.4-1.2l-.32-.19-3.11.76.76-3.03-.2-.31A8.17 8.17 0 0 1 3.84 12c0-4.53 3.68-8.2 8.2-8.2 4.53 0 8.2 3.67 8.2 8.2 0 4.52-3.67 8.2-8.2 8.2Zm4.48-6.14c-.24-.12-1.44-.71-1.67-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.42-1.33-1.66-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01a.9.9 0 0 0-.65.3c-.22.24-.85.83-.85 2.03 0 1.2.87 2.36.99 2.52.12.16 1.71 2.61 4.15 3.66.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28Z',
+      }),
+    ]
+  )
+
+const TikTokIcon = (props: { class?: string }) =>
+  h(
+    'svg',
+    { class: props.class, viewBox: '0 0 24 24', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' },
+    [
+      h('path', {
+        d: 'M16.6 5.82c-.94-.66-1.53-1.72-1.6-2.82h-2.79v13.44c0 1.34-1.09 2.43-2.43 2.43a2.43 2.43 0 1 1 0-4.86c.24 0 .48.03.7.1V11c-.23-.03-.46-.05-.7-.05a5.24 5.24 0 1 0 5.23 5.24V9.13a7.98 7.98 0 0 0 4.6 1.46V7.8a4.85 4.85 0 0 1-2.81-1.98Z',
       }),
     ]
   )

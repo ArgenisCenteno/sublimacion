@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,7 @@ class UserController extends Controller
     }
     public function index(Request $request): Response
     {
-        $query = User::with(['roles', 'company']);
+        $query = User::with(['roles']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -54,22 +55,12 @@ class UserController extends Controller
     {
         return Inertia::render('Users/Create', [
             'allRoles' => Role::all(),
-            'companies' => Company::all(),
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'company_id' => 'nullable|exists:companies,id',
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,id',
-            'can_view_all_companies' => 'boolean',
-            'active' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create($validated);
 
@@ -83,7 +74,7 @@ class UserController extends Controller
 
     public function show(User $user): Response
     {
-        $user->load(['roles', 'company']);
+        $user->load(['roles']);
 
         return Inertia::render('Users/Show', [
             'user' => $user,
@@ -92,27 +83,17 @@ class UserController extends Controller
 
     public function edit(User $user): Response
     {
-        $user->load(['roles', 'company']);
+        $user->load(['roles']);
 
         return Inertia::render('Users/Edit', [
             'user' => $user,
             'allRoles' => Role::all(),
-            'companies' => Company::all(),
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
-            'company_id' => 'nullable|exists:companies,id',
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,id',
-            'can_view_all_companies' => 'boolean',
-            'active' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         if (empty($validated['password'])) {
             unset($validated['password']);
@@ -135,22 +116,15 @@ class UserController extends Controller
 
     public function profile(): Response
     {
-        $user = auth()->user()->load(['roles', 'company']);
+        $user = auth()->user()->load(['roles']);
 
         return Inertia::render('Users/Profile', [
             'user' => $user,
         ]);
     }
-    public function updateProfile(Request $request): RedirectResponse
+    public function updateProfile(UpdateProfileRequest $request): RedirectResponse
     {
-        $user = $request->user();
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
-        ]);
-
-        $user->update($validated);
+        $request->user()->update($request->validated());
 
         return back();
     }

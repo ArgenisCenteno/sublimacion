@@ -198,6 +198,47 @@
                                 </p>
                             </div>
 
+                            <!-- Telefono -->
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                                >
+                                    Teléfono
+                                </label>
+                                <input
+                                    v-model="profileForm.phone"
+                                    type="text"
+                                    :class="inputClass(profileForm.errors.phone)"
+                                />
+                                <p
+                                    v-if="profileForm.errors.phone"
+                                    class="mt-1.5 text-xs text-rose-500"
+                                >
+                                    {{ profileForm.errors.phone }}
+                                </p>
+                            </div>
+
+                            <!-- Cedula/RIF -->
+                            <div>
+                                <label
+                                    class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                                >
+                                    Cédula/RIF
+                                </label>
+                                <input
+                                    v-model="profileForm.cedula_rif"
+                                    type="text"
+                                    placeholder="V-12345678"
+                                    :class="inputClass(profileForm.errors.cedula_rif)"
+                                />
+                                <p
+                                    v-if="profileForm.errors.cedula_rif"
+                                    class="mt-1.5 text-xs text-rose-500"
+                                >
+                                    {{ profileForm.errors.cedula_rif }}
+                                </p>
+                            </div>
+
                             <!-- Feedback -->
                             <transition name="fade">
                                 <div
@@ -575,7 +616,8 @@ interface UserData {
     name: string;
     email: string;
     avatar_url?: string | null;
-    company?: { id: number; name: string } | null;
+    phone?: string | null;
+    cedula_rif?: string | null;
     active?: boolean;
 }
 
@@ -607,12 +649,6 @@ const heroCards = [
         value: props.user.email,
         caption: 'Dirección de acceso y notificaciones.',
         delay: 90,
-    },
-    {
-        title: 'Empresa',
-        value: props.user.company?.name ?? '—',
-        caption: 'Organización asociada a tu cuenta.',
-        delay: 180,
     },
 ];
 
@@ -683,6 +719,8 @@ const profileSaved = ref(false);
 const profileForm = useForm({
     name: props.user.name,
     email: props.user.email,
+    phone: props.user.phone ?? '',
+    cedula_rif: props.user.cedula_rif ?? '',
 });
 
 function submitProfile() {

@@ -43,7 +43,7 @@
         <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
             <nav class="mb-6">
                 <div class="flex flex-col gap-4">
-                    <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
+                    <div v-for="(menuGroup, groupIndex) in visibleMenuGroups" :key="groupIndex">
                         <h2 :class="['mb-4 flex text-xs leading-[20px] text-gray-400 uppercase', !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start']">
                             <template v-if="isExpanded || isHovered || isMobileOpen">
                                 {{ menuGroup.title }}
@@ -122,11 +122,12 @@ import { ChevronDownIcon, HorizontalDots } from '../../icons';
 import { useSidebar } from '@/composables/useSidebar';
 
 interface SubItem { name: string; path: string; }
-interface MenuItem { icon: Component; name: string; path?: string; subItems?: SubItem[]; }
+interface MenuItem { icon: Component; name: string; path?: string; subItems?: SubItem[]; permission?: string; }
 interface MenuGroup { title: string; items: MenuItem[]; }
 
-const page   = usePage();
+const page   = usePage<{ auth: { permissions: string[] } }>();
 const currentPath = page.url;
+const permissions = computed(() => page.props.auth?.permissions ?? []);
 
 const {
     isExpanded,
@@ -156,6 +157,33 @@ const IconUsuarios   = icon(['M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v
 const IconRoles      = icon(['M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z']);
 const IconAjustes    = icon(['M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z']);
 
+// Catálogo
+const IconProductos  = icon(['M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4']);
+const IconCategorias = icon(['M7 7h.01', 'M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 11V6a3 3 0 013-3z']);
+
+// Pagos
+const IconPagos       = icon(['M3 10h18M7 15h1m4 0h1m-9 4h16a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z']);
+const IconDepositos   = icon(['M3 21h18M4 10h16v9H4v-9zM12 3l8 5H4l8-5z']);
+const IconConciliacion = icon(['M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z']);
+const IconTasaCambio  = icon(['M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4']);
+const IconRecibos     = icon(['M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z']);
+
+// Pedidos
+const IconPedidos = icon(['M20 13V7a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 7v10a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0020 17', 'M12 22V12', 'M20 6.5L12 12 4 6.5']);
+
+// POS
+const IconPos       = icon(['M3 6h18M5 6v12a2 2 0 002 2h10a2 2 0 002-2V6M9 10h6', 'M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2']);
+const IconCajaTurno = icon(['M12 8v4l3 3', 'M12 21a9 9 0 100-18 9 9 0 000 18z']);
+
+// Reportes
+const IconReportes = icon(['M3 3v18h18', 'M18 17V9', 'M13 17V5', 'M8 17v-3']);
+
+// Administración
+const IconActivityLog = icon(['M12 8v4l3 3', 'M3.05 11a9 9 0 1 0 .5-4M3 4v4h4']);
+
+// Tienda
+const IconTienda = icon(['M3 21h18', 'M5 21V9l7-6 7 6v12', 'M9 21v-6h6v6']);
+
 // ── Menú ────────────────────────────────────────────────────────────────────
 
 const menuGroups: MenuGroup[] = [
@@ -166,22 +194,66 @@ const menuGroups: MenuGroup[] = [
         ],
     },
     {
+        title: 'Pedidos',
+        items: [
+            { icon: IconPedidos, name: 'Pedidos', path: '/orders' },
+        ],
+    },
+    {
+        title: 'POS',
+        items: [
+            { icon: IconPos,       name: 'Punto de venta', path: '/pos' },
+            { icon: IconCajaTurno, name: 'Cierres de caja', path: '/cash-shifts' },
+        ],
+    },
+    {
+        title: 'Reportes',
+        items: [
+            { icon: IconReportes, name: 'Reportes', path: '/reportes' },
+        ],
+    },
+    {
+        title: 'Tienda',
+        items: [
+            { icon: IconTienda, name: 'Apariencia y pagos', path: '/settings/tienda', permission: 'settings.edit' },
+        ],
+    },
+    {
+        title: 'Catálogo',
+        items: [
+            { icon: IconProductos,  name: 'Productos',  path: '/products' },
+            { icon: IconCategorias, name: 'Categorías', path: '/categories' },
+        ],
+    },
+    {
+        title: 'Pagos',
+        items: [
+            { icon: IconPagos,        name: 'Pagos pendientes',    path: '/payments' },
+            { icon: IconRecibos,      name: 'Recibos',             path: '/receipts' },
+            { icon: IconDepositos,    name: 'Depósitos bancarios', path: '/bank-deposits' },
+            { icon: IconConciliacion, name: 'Conciliación',        path: '/conciliacion' },
+            { icon: IconTasaCambio,   name: 'Tasa de cambio',      path: '/settings/exchange-rate' },
+        ],
+    },
+    {
         title: 'Administración',
         items: [
             { icon: IconUsuarios, name: 'Usuarios', path: '/users' },
             { icon: IconRoles,    name: 'Roles',    path: '/roles' },
-            {
-                icon: IconAjustes,
-                name: 'Ajustes',
-                subItems: [
-                    { name: 'Perfil',      path: '/settings/profile' },
-                    { name: 'Apariencia',  path: '/settings/appearance' },
-                    { name: 'Contraseña',  path: '/settings/password' },
-                ],
-            },
+            { icon: IconActivityLog, name: 'Activity log', path: '/activity-log', permission: 'activity_log.view' },
+            { icon: IconAjustes, name: 'Perfil', path: '/profile' },
         ],
     },
 ];
+
+const visibleMenuGroups = computed<MenuGroup[]>(() =>
+    menuGroups
+        .map((group) => ({
+            ...group,
+            items: group.items.filter((item) => !item.permission || permissions.value.includes(item.permission)),
+        }))
+        .filter((group) => group.items.length > 0)
+);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -193,7 +265,7 @@ const toggleSubmenu = (groupIndex: number, itemIndex: number) => {
 };
 
 const isAnySubmenuRouteActive = computed(() =>
-    menuGroups.some(group =>
+    visibleMenuGroups.value.some(group =>
         group.items.some(item =>
             item.subItems?.some(subItem => isActive(subItem.path))
         )
@@ -205,7 +277,7 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number) => {
     return (
         openSubmenu.value === key ||
         (isAnySubmenuRouteActive.value &&
-            menuGroups[groupIndex].items[itemIndex].subItems?.some(subItem =>
+            visibleMenuGroups.value[groupIndex].items[itemIndex].subItems?.some(subItem =>
                 isActive(subItem.path)
             ))
     );

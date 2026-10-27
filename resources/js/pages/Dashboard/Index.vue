@@ -1,212 +1,124 @@
 <template>
-  <AdminLayout>
-    <PageBreadcrumb :pageTitle="'Dashboard'" />
+    <AdminLayout>
+        <PageBreadcrumb pageTitle="Dashboard" />
 
-    <div class="space-y-6"></div>
+        <div class="mt-5 space-y-6">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p class="text-theme-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Vendido este mes</p>
+                    <p class="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">${{ kpis.total_vendido_mes.toFixed(2) }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p class="text-theme-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Pedidos este mes</p>
+                    <p class="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{{ kpis.pedidos_mes }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p class="text-theme-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Pedidos hoy</p>
+                    <p class="mt-2 text-2xl font-semibold text-indigo-600 dark:text-indigo-400">{{ kpis.pedidos_hoy }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p class="text-theme-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Pendientes de pago</p>
+                    <p class="mt-2 text-2xl font-semibold text-amber-600 dark:text-amber-400">{{ kpis.pendientes_pago }}</p>
+                </div>
+            </div>
 
-    <DashboardDrilldownDrawer
-      :open="drilldown.open"
-      :loading="drilldown.loading"
-      :title="drilldown.title"
-      :subtitle="drilldown.subtitle"
-      :empty-message="drilldown.emptyMessage"
-      :error="drilldown.error"
-      :items="drilldown.items"
-      @close="closeDrilldown"
-    />
-  </AdminLayout>
+            <div class="grid gap-6 lg:grid-cols-2">
+                <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+                        <h2 class="text-base font-semibold text-slate-900 dark:text-white">Pedidos recientes</h2>
+                    </div>
+                    <ul class="divide-y divide-slate-200 dark:divide-slate-800">
+                        <li v-for="order in recentOrders" :key="order.id" class="px-6 py-3">
+                            <Link :href="`/orders/${order.id}`" class="flex items-center justify-between text-sm hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span>
+                                    <span class="font-medium text-slate-900 dark:text-white">#{{ order.id }}</span>
+                                    <span class="text-slate-500 dark:text-slate-400"> — {{ order.customer_name }}</span>
+                                </span>
+                                <span class="text-slate-500 dark:text-slate-400">${{ Number(order.total_usd).toFixed(2) }}</span>
+                            </Link>
+                        </li>
+                    </ul>
+                    <p v-if="!recentOrders.length" class="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">Sin pedidos todavía.</p>
+                </div>
+
+                <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+                        <h2 class="text-base font-semibold text-slate-900 dark:text-white">Pagos pendientes de verificar</h2>
+                    </div>
+                    <ul class="divide-y divide-slate-200 dark:divide-slate-800">
+                        <li v-for="payment in pendingPayments" :key="payment.id" class="px-6 py-3">
+                            <Link href="/payments" class="flex items-center justify-between text-sm hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span>
+                                    <span class="font-medium text-slate-900 dark:text-white">Pedido #{{ payment.order.id }}</span>
+                                    <span class="text-slate-500 dark:text-slate-400"> — {{ payment.order.customer_name }}</span>
+                                </span>
+                                <span class="text-slate-500 dark:text-slate-400">${{ Number(payment.amount_usd).toFixed(2) }}</span>
+                            </Link>
+                        </li>
+                    </ul>
+                    <p v-if="!pendingPayments.length" class="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">Sin pagos pendientes.</p>
+                </div>
+            </div>
+
+            <div class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <h2 class="mb-4 text-base font-semibold text-slate-900 dark:text-white">Accesos rápidos</h2>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <Link
+                        v-for="link in visibleQuickLinks"
+                        :key="link.href"
+                        :href="link.href"
+                        class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
+                        {{ link.label }}
+                    </Link>
+                </div>
+            </div>
+        </div>
+    </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import DashboardFleetPanel from '@/components/dashboard/DashboardFleetPanel.vue'
-import DashboardAlertsPanel from '@/components/dashboard/DashboardAlertsPanel.vue'
-import DashboardOperationsPanel from '@/components/dashboard/DashboardOperationsPanel.vue'
-import DashboardDocumentsPanel from '@/components/dashboard/DashboardDocumentsPanel.vue'
-import DashboardCommercialPanel from '@/components/dashboard/DashboardCommercialPanel.vue'
-import DashboardFinancePanel from '@/components/dashboard/DashboardFinancePanel.vue'
-import DashboardDrilldownDrawer from '@/components/dashboard/DashboardDrilldownDrawer.vue'
+import { computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import AdminLayout from '@/components/layout/AdminLayout.vue';
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';
+
+interface OrderRow {
+    id: number;
+    customer_name: string;
+    total_usd: string | number;
+}
+
+interface PaymentRow {
+    id: number;
+    amount_usd: string | number;
+    order: { id: number; customer_name: string };
+}
 
 defineProps<{
-  hero: {
-    fleet_total: number
-    available_now: number
-    in_workshop_now: number
-    alerts_pending: number
-  }
-  fleet: {
-    physical: Record<string, number>
-    commercial: Record<string, number>
-  }
-  operations: {
-    orders: Record<string, number>
-    by_type: Record<string, number>
-    pending_pickup: number
-    bottlenecks: number
-    workflow_plan: Record<string, number>
-    bottleneck_list: Array<{
-      id: number
-      type: string
-      days: number
-      provider?: string | null
-      vehicle: {
-        plate: string
-        label: string
-      } | null
-    }>
-  }
-  alerts: {
-    pending: number
-    high: number
-    medium: number
-    low: number
-    resolved_today: number
-    recent: Array<{
-      id: number
-      type: string
-      priority: string
-      created_at: string | null
-      vehicle: {
-        plate: string
-        label: string
-      } | null
-    }>
-  }
-  documents: {
-    vehicles_pending: number
-    missing_ficha_tecnica: number
-    missing_permiso_circulacion: number
-    vault_pending: number
-    vault_downloaded: number
-    vault_processed: number
-  }
-  commercial: {
-    reserved: number
-    sold_month: number
-    sold_amount_month: number
-    renting_active: number
-    renting_expiring_30: number
-    recent_sales: Array<{
-      id: number
-      amount: number
-      signed_at: string | null
-      client?: string | null
-      vehicle: {
-        plate: string
-        label: string
-      } | null
-    }>
-  }
-  finance: {
-    invoices_pending_assignment: number
-    invoices_pending_ocr: number
-    invoices_ocr_error: number
-    invoice_amount_month: number
-    costs_month: number
-  }
-}>()
+    kpis: {
+        total_vendido_mes: number;
+        pedidos_mes: number;
+        pedidos_hoy: number;
+        pendientes_pago: number;
+    };
+    recentOrders: OrderRow[];
+    pendingPayments: PaymentRow[];
+}>();
 
-interface DrilldownItem {
-  id: number | string
-  title: string
-  subtitle: string
-  meta?: string[]
-  badge?: string | null
-  href?: string | null
-  hrefLabel?: string | null
-}
+const page = usePage<{ auth: { permissions: string[] } }>();
+const permissions = computed(() => page.props.auth?.permissions ?? []);
 
-const drilldown = reactive<{
-  open: boolean
-  loading: boolean
-  title: string
-  subtitle: string
-  emptyMessage: string
-  error: string | null
-  items: DrilldownItem[]
-}>({
-  open: false,
-  loading: false,
-  title: '',
-  subtitle: '',
-  emptyMessage: 'No hay elementos para mostrar en este desglose.',
-  error: null,
-  items: [],
-})
+const quickLinks = [
+    { label: 'Pedidos', href: '/orders', permission: 'orders.view' },
+    { label: 'Pagos pendientes', href: '/payments', permission: 'payments.view' },
+    { label: 'Punto de venta', href: '/pos', permission: 'pos.vender' },
+    { label: 'Reportes', href: '/reportes', permission: 'reportes.ver' },
+    { label: 'Productos', href: '/products', permission: 'products.view' },
+    { label: 'Depósitos bancarios', href: '/bank-deposits', permission: 'bank_deposits.view' },
+    { label: 'Usuarios', href: '/users', permission: 'users.view' },
+    { label: 'Activity log', href: '/activity-log', permission: 'activity_log.view' },
+];
 
-const openDrilldown = async (key: string) => {
-  drilldown.open = true
-  drilldown.loading = true
-  drilldown.error = null
-  drilldown.items = []
-  drilldown.title = 'Cargando detalle...'
-  drilldown.subtitle = 'Estamos preparando la lista asociada a este indicador.'
-  drilldown.emptyMessage = 'No hay elementos para mostrar en este desglose.'
-
-  try {
-    const response = await fetch(`/dashboard/drilldown?key=${encodeURIComponent(key)}`, {
-      headers: {
-        Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      credentials: 'same-origin',
-    })
-
-    if (!response.ok) {
-      throw new Error('No pudimos obtener el detalle de este indicador.')
-    }
-
-    const payload = await response.json()
-
-    drilldown.title = payload.title ?? 'Detalle'
-    drilldown.subtitle = payload.subtitle ?? ''
-    drilldown.emptyMessage = payload.emptyMessage ?? 'No hay elementos para mostrar en este desglose.'
-    drilldown.items = payload.items ?? []
-  } catch (error) {
-    drilldown.error = error instanceof Error ? error.message : 'No pudimos cargar el detalle.'
-    drilldown.title = 'Detalle no disponible'
-    drilldown.subtitle = 'Prueba otra vez en unos segundos.'
-  } finally {
-    drilldown.loading = false
-  }
-}
-
-const closeDrilldown = () => {
-  drilldown.open = false
-}
+const visibleQuickLinks = computed(() => quickLinks.filter((link) => permissions.value.includes(link.permission)));
 </script>
-
-<style scoped>
-.dashboard-section {
-  animation: dashboard-section-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: opacity, transform;
-}
-
-.dashboard-section--1 { animation-delay: 20ms; }
-.dashboard-section--2 { animation-delay: 70ms; }
-.dashboard-section--3 { animation-delay: 120ms; }
-.dashboard-section--4 { animation-delay: 170ms; }
-.dashboard-section--5 { animation-delay: 220ms; }
-.dashboard-section--6 { animation-delay: 270ms; }
-.dashboard-section--7 { animation-delay: 320ms; }
-
-@keyframes dashboard-section-enter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dashboard-section {
-    animation: none;
-  }
-}
-</style>

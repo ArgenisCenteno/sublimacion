@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('role', [
                 'admin', 'gerencia', 'comercial', 'operario',
                 'financiero', 'gestoria', 'gestor_externo',
-            ])->default('comercial')->after('company_id');
+            ])->default('comercial');
         });
     }
 };

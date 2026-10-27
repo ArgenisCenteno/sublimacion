@@ -3,7 +3,7 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">1. Aceptación de los términos</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        Al acceder o usar el sitio web de [Nombre de la empresa], aceptas los presentes términos y condiciones. Si no
+        Al acceder o usar el sitio web de {{ storeName }}, aceptas los presentes términos y condiciones. Si no
         estás de acuerdo con ellos, te pedimos no utilizar el sitio.
       </p>
     </div>
@@ -11,7 +11,7 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">2. Servicios ofrecidos</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        [Nombre de la empresa] ofrece [descripción de los servicios]. La información del sitio es de carácter
+        {{ storeName }} ofrece [descripción de los servicios]. La información del sitio es de carácter
         informativo y no sustituye el asesoramiento profesional.
       </p>
     </div>
@@ -35,7 +35,7 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">5. Propiedad intelectual</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        Los textos, imágenes y demás contenidos de este sitio son propiedad de [Nombre de la empresa] o se usan con la debida
+        Los textos, imágenes y demás contenidos de este sitio son propiedad de {{ storeName }} o se usan con la debida
         autorización, y no pueden reproducirse sin permiso previo.
       </p>
     </div>
@@ -43,7 +43,7 @@
     <div>
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">6. Limitación de responsabilidad</h2>
       <p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-        [Nombre de la empresa] no se hace responsable por interrupciones del sitio ajenas a su control ni por el uso
+        {{ storeName }} no se hace responsable por interrupciones del sitio ajenas a su control ni por el uso
         que se le dé a la información publicada fuera del contexto previsto.
       </p>
     </div>
@@ -66,5 +66,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import LegalLayout from '@/components/layout/LegalLayout.vue'
+
+const page = usePage<{ store: { name: string } }>()
+const storeName = computed(() => page.props.store.name)
 </script>
