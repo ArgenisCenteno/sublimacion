@@ -18,11 +18,11 @@
                     </div>
                     <div>
                         <label class="label">Monto (Bs)</label>
-                        <input v-model="form.amount_bs" type="number" min="0" step="0.01" :class="inputClass(form.errors.amount_bs)" />
+                        <MoneyInput v-model="form.amount_bs" currency="BS" :class="inputClass(form.errors.amount_bs)" />
                     </div>
                     <div>
                         <label class="label">Monto (USD)</label>
-                        <input v-model="form.amount_usd" type="number" min="0" step="0.01" :class="inputClass(form.errors.amount_usd)" />
+                        <MoneyInput v-model="form.amount_usd" currency="USD" :class="inputClass(form.errors.amount_usd)" />
                     </div>
                     <div>
                         <label class="label">Referencia</label>
@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import MoneyInput from '@/components/forms/MoneyInput.vue';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';
 

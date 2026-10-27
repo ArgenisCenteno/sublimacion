@@ -21,11 +21,11 @@
             <form class="space-y-4" @submit.prevent="submitOpenShift">
                 <div>
                     <label class="label">Fondo inicial (USD)</label>
-                    <input v-model="shiftForm.opening_cash_usd" type="number" min="0" step="0.01" :class="inputClass()" />
+                    <MoneyInput v-model="shiftForm.opening_cash_usd" currency="USD" :class="inputClass()" />
                 </div>
                 <div>
                     <label class="label">Fondo inicial (Bs)</label>
-                    <input v-model="shiftForm.opening_cash_bs" type="number" min="0" step="0.01" :class="inputClass()" />
+                    <MoneyInput v-model="shiftForm.opening_cash_bs" currency="BS" :class="inputClass()" />
                 </div>
                 <button type="submit" :disabled="shiftForm.processing" class="btn-primary w-full">
                     {{ shiftForm.processing ? 'Abriendo...' : 'Abrir turno' }}
@@ -130,7 +130,33 @@
                         </p>
                     </div>
 
-                    <div class="mt-3 space-y-3">
+                    <div v-if="quickSale" class="space-y-3">
+                        <p class="rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                            Se registra como <strong class="text-slate-900 dark:text-white">Consumidor final</strong>. No necesitas datos del cliente.
+                        </p>
+                        <button
+                            v-if="!showQuickDetails"
+                            type="button"
+                            class="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+                            @click="showQuickDetails = true"
+                        >
+                            + Agregar nombre o cédula al recibo (opcional)
+                        </button>
+                        <template v-else>
+                            <div>
+                                <label class="label text-xs">Nombre (opcional)</label>
+                                <input v-model="saleForm.customer_name" placeholder="Consumidor final" :class="inputClass(saleForm.errors.customer_name)" />
+                                <p v-if="saleForm.errors.customer_name" class="mt-1 text-xs text-red-500">{{ saleForm.errors.customer_name }}</p>
+                            </div>
+                            <div>
+                                <label class="label text-xs">Cédula/RIF (opcional)</label>
+                                <input v-model="saleForm.customer_cedula_rif" placeholder="V-12345678" :class="inputClass(saleForm.errors.customer_cedula_rif)" />
+                                <p v-if="saleForm.errors.customer_cedula_rif" class="mt-1 text-xs text-red-500">{{ saleForm.errors.customer_cedula_rif }}</p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div v-else class="mt-3 space-y-3">
                         <div>
                             <label class="label text-xs">Nombre *</label>
                             <input v-model="saleForm.customer_name" :class="inputClass(saleForm.errors.customer_name)" />
@@ -157,7 +183,7 @@
                     </div>
 
                     <div v-for="(line, index) in payments" :key="index" class="mb-3 grid gap-2 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-                        <select v-model="line.method" class="h-10 rounded-lg border border-slate-300 px-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                        <select v-model="line.method" @change="onMethodChange(line)" class="h-10 rounded-lg border border-slate-300 px-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                             <option value="efectivo">Efectivo</option>
                             <option value="pago_movil">Pago móvil</option>
                             <option value="transferencia">Transferencia</option>
@@ -168,14 +194,45 @@
                                 <option value="USD">USD</option>
                                 <option value="BS">Bs</option>
                             </select>
-                            <input v-model.number="line.amount" type="number" min="0.01" step="0.01" placeholder="Monto" class="h-10 rounded-lg border border-slate-300 px-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                            <MoneyInput v-model="line.amount" :currency="line.method === 'paypal' ? 'USD' : line.currency" placeholder="Monto" class="h-10 w-full rounded-lg border border-slate-300 px-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <button
+                                type="button"
+                                class="font-semibold text-indigo-600 hover:underline disabled:opacity-40 dark:text-indigo-400"
+                                :disabled="remainingUsd(index) <= 0"
+                                @click="fillRemaining(line, index)"
+                            >
+                                Completar restante
+                            </button>
+                            <span v-if="Number(line.amount) > 0 && line.method !== 'paypal' && hasRate" class="text-slate-500 dark:text-slate-400">
+                                = {{ line.currency === 'BS' ? formatUsd(lineUsd(line)) : formatBs(toBs(line.amount)) }}
+                            </span>
                         </div>
                         <button v-if="payments.length > 1" type="button" class="text-xs text-rose-500" @click="payments.splice(index, 1)">Quitar línea</button>
                     </div>
 
-                    <div class="mt-4 space-y-1 border-t border-slate-200 pt-4 text-sm dark:border-slate-700">
-                        <div class="flex justify-between text-slate-600 dark:text-slate-300"><span>Total del carrito</span><span>${{ cartTotal.toFixed(2) }}</span></div>
-                        <div class="flex justify-between font-semibold text-slate-900 dark:text-white"><span>Total ingresado</span><span>${{ paymentsTotal.toFixed(2) }}</span></div>
+                    <div class="mt-4 space-y-1.5 border-t border-slate-200 pt-4 text-sm dark:border-slate-700">
+                        <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                            <span>Tasa del día</span><span>{{ hasRate ? `${formatBs(rate)} / $1` : 'Sin definir' }}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                            <span>Total del carrito</span>
+                            <span class="text-right">{{ formatUsd(cartTotal) }}<span v-if="hasRate" class="block text-xs">{{ formatBs(toBs(cartTotal)) }}</span></span>
+                        </div>
+                        <div class="flex justify-between font-semibold text-slate-900 dark:text-white">
+                            <span>Total ingresado</span><span>{{ formatUsd(paymentsTotal) }}</span>
+                        </div>
+                        <div
+                            v-if="cart.length"
+                            class="flex justify-between rounded-lg px-2 py-1.5 font-semibold"
+                            :class="balanceUsd > 0.009 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300'"
+                        >
+                            <span>{{ balanceUsd > 0.009 ? 'Falta' : balanceUsd < -0.009 ? 'Vuelto' : 'Completo' }}</span>
+                            <span v-if="Math.abs(balanceUsd) > 0.009" class="text-right">
+                                {{ formatUsd(Math.abs(balanceUsd)) }}<span v-if="hasRate" class="block text-xs font-medium">{{ formatBs(toBs(Math.abs(balanceUsd))) }}</span>
+                            </span>
+                        </div>
                     </div>
 
                     <button
@@ -199,11 +256,11 @@
                 <div class="mt-4 space-y-3">
                     <div>
                         <label class="label text-xs">Efectivo contado (USD)</label>
-                        <input v-model="closeForm.counted_cash_usd" type="number" min="0" step="0.01" :class="inputClass()" />
+                        <MoneyInput v-model="closeForm.counted_cash_usd" currency="USD" :class="inputClass()" />
                     </div>
                     <div>
                         <label class="label text-xs">Efectivo contado (Bs)</label>
-                        <input v-model="closeForm.counted_cash_bs" type="number" min="0" step="0.01" :class="inputClass()" />
+                        <MoneyInput v-model="closeForm.counted_cash_bs" currency="BS" :class="inputClass()" />
                     </div>
                     <div>
                         <label class="label text-xs">Observaciones</label>
@@ -225,6 +282,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
+import MoneyInput from '@/components/forms/MoneyInput.vue';
+import { useExchangeRate } from '@/composables/useExchangeRate';
 import { useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';
@@ -392,7 +451,10 @@ function selectCustomer(customer: CustomerResult) {
     customerSearch.value = '';
 }
 
+const showQuickDetails = ref(false);
+
 watch(quickSale, (value) => {
+    saleForm.clearErrors();
     if (value) {
         saleForm.customer_user_id = null;
     }
@@ -403,18 +465,44 @@ watch(quickSale, (value) => {
 interface PaymentLine {
     method: string;
     currency: 'USD' | 'BS';
-    amount: number | string;
+    amount: number | string | null;
+}
+
+const { rate, hasRate, toBs, toUsd, formatUsd, formatBs } = useExchangeRate();
+
+// Las líneas en Bs se convierten a USD con la misma tasa que usa el backend
+const lineUsd = (line: PaymentLine) =>
+    line.method !== 'paypal' && line.currency === 'BS' ? toUsd(line.amount) : Number(line.amount) || 0;
+
+const remainingUsd = (exceptIndex: number) =>
+    Math.round((cartTotal.value - payments.reduce((sum, l, i) => (i === exceptIndex ? sum : sum + lineUsd(l)), 0)) * 100) / 100;
+
+function fillRemaining(line: PaymentLine, index: number) {
+    const usd = remainingUsd(index);
+    if (usd <= 0) return;
+    line.amount = line.method !== 'paypal' && line.currency === 'BS' ? toBs(usd) : usd;
 }
 
 const payments = reactive<PaymentLine[]>([{ method: 'efectivo', currency: 'USD', amount: '' }]);
+
+// Pago móvil y transferencia son en bolívares; efectivo arranca en USD (se puede cambiar)
+const currencyFor = (method: string): 'USD' | 'BS' => (method === 'pago_movil' || method === 'transferencia' ? 'BS' : 'USD');
+
+function onMethodChange(line: PaymentLine) {
+    const previous = line.currency;
+    line.currency = currencyFor(line.method);
+    // Si cambió la moneda, el monto escrito ya no aplica: se convierte al equivalente
+    if (previous !== line.currency && Number(line.amount) > 0 && hasRate.value) {
+        line.amount = line.currency === 'BS' ? toBs(line.amount) : toUsd(line.amount);
+    }
+}
 
 function addPaymentLine() {
     payments.push({ method: 'efectivo', currency: 'USD', amount: '' });
 }
 
-const paymentsTotal = computed(() =>
-    payments.reduce((sum, line) => sum + (Number(line.amount) || 0), 0),
-);
+const paymentsTotal = computed(() => payments.reduce((sum, line) => sum + lineUsd(line), 0));
+const balanceUsd = computed(() => Math.round((cartTotal.value - paymentsTotal.value) * 100) / 100);
 
 // ── Venta ──────────────────────────────────────────────────────────────────
 
@@ -430,6 +518,17 @@ function submitSale() {
     saleForm
         .transform((data) => ({
             ...data,
+            quick_sale: quickSale.value,
+            // En venta rápida solo se envían los datos opcionales que se hayan escrito
+            ...(quickSale.value
+                ? {
+                      customer_user_id: null,
+                      customer_name: data.customer_name.trim() || null,
+                      customer_phone: null,
+                      customer_email: null,
+                      customer_cedula_rif: data.customer_cedula_rif.trim() || null,
+                  }
+                : {}),
             items: cart.value.map((line) => ({
                 product_id: line.productId,
                 product_variant_id: line.variantId,
@@ -444,6 +543,8 @@ function submitSale() {
         .post('/pos/sale', {
             onSuccess: () => {
                 cart.value = [];
+                saleForm.reset();
+                showQuickDetails.value = false;
                 payments.splice(0, payments.length, { method: 'efectivo', currency: 'USD', amount: '' });
             },
         });

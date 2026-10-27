@@ -11,11 +11,10 @@
             <form class="space-y-6" @submit.prevent="submit">
                 <div>
                     <label class="label">Tasa (Bs por 1 USD) *</label>
-                    <input
+                    <MoneyInput
                         v-model="form.exchange_rate_bs"
-                        type="number"
-                        min="0.0001"
-                        step="0.0001"
+                        currency="BS"
+                        :decimals="4"
                         :disabled="!canEdit"
                         :class="inputClass(form.errors.exchange_rate_bs)"
                     />
@@ -34,6 +33,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import MoneyInput from '@/components/forms/MoneyInput.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';

@@ -2,19 +2,17 @@
   <div>
     <button
       type="button"
+      class="hidden items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 py-1.5 pl-2 pr-3 text-theme-xs font-medium text-gray-700 transition-colors dark:border-gray-800 dark:bg-gray-800 dark:text-gray-300 lg:flex"
+      :class="canEdit ? 'hover:border-brand-300 hover:bg-brand-25 dark:hover:bg-white/[0.03]' : 'cursor-default'"
+      :title="canEdit ? 'Actualizar tasa del dólar' : 'Tasa del dólar vigente'"
       @click="openModal"
-      class="hidden items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-theme-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03] lg:flex"
-      title="Actualizar tasas de cambio"
     >
-      <span class="flex items-center gap-1">
-        <span class="text-gray-400 dark:text-gray-500">Dólar</span>
-        <span class="font-semibold text-gray-800 dark:text-white/90">{{ formattedBs }}</span>
+      <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-success-50 text-sm font-bold text-success-600 dark:bg-success-500/15">$</span>
+      <span class="flex flex-col items-start leading-tight">
+        <span class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500">Dólar</span>
+        <span class="font-semibold text-gray-800 dark:text-white/90">{{ hasRate ? formatBs(rate) : 'Sin definir' }}</span>
       </span>
-      <span class="h-3 w-px bg-gray-300 dark:bg-gray-700"></span>
-      <span class="flex items-center gap-1">
-        <span class="text-gray-400 dark:text-gray-500">Euro</span>
-        <span class="font-semibold text-gray-800 dark:text-white/90">{{ formattedEur }}</span>
-      </span>
+      <Pencil v-if="canEdit" class="h-3.5 w-3.5 text-gray-400" />
     </button>
 
     <Modal v-if="isModalOpen" full-screen-backdrop @close="closeModal">
@@ -22,67 +20,38 @@
         <div class="relative w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900">
           <button
             type="button"
-            @click="closeModal"
             class="absolute right-5 top-5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            aria-label="Cerrar"
+            @click="closeModal"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.21967 7.28131C5.92678 6.98841 5.92678 6.51354 6.21967 6.22065C6.51256 5.92775 6.98744 5.92775 7.28033 6.22065L11.999 10.9393L16.7176 6.22078C17.0105 5.92789 17.4854 5.92788 17.7782 6.22078C18.0711 6.51367 18.0711 6.98855 17.7782 7.28144L13.0597 12L17.7782 16.7186C18.0711 17.0115 18.0711 17.4863 17.7782 17.7792C17.4854 18.0721 17.0105 18.0721 16.7176 17.7792L11.999 13.0607L7.28033 17.7794C6.98744 18.0722 6.51256 18.0722 6.21967 17.7794C5.92678 17.4865 5.92678 17.0116 6.21967 16.7187L10.9384 12L6.21967 7.28131Z"
-                fill="currentColor"
-              />
-            </svg>
+            <X class="h-5 w-5" />
           </button>
 
-          <h4 class="mb-1 text-lg font-semibold text-gray-800 dark:text-white/90">Tasas de cambio</h4>
-          <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">Bolívares por cada dólar / euro.</p>
+          <h4 class="mb-1 text-lg font-semibold text-gray-800 dark:text-white/90">Tasa del dólar</h4>
+          <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
+            Bolívares por cada dólar. Se usa para calcular los pagos en Bs (pago móvil, transferencia y efectivo).
+          </p>
 
           <form @submit.prevent="submit">
-            <div class="mb-4">
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Tasa del dólar (Bs.)
-              </label>
-              <input
-                v-model="form.bs"
-                type="number"
-                step="0.0001"
-                min="0.0001"
-                required
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 outline-none focus:border-brand-300 dark:border-gray-700 dark:text-white/90"
-              />
-              <p v-if="errors.bs" class="mt-1.5 text-xs text-red-500">{{ errors.bs }}</p>
+            <label class="label" for="rate-bs">Bs por 1 USD</label>
+            <MoneyInput
+              id="rate-bs"
+              v-model="form.exchange_rate_bs"
+              currency="BS"
+              :decimals="4"
+              required
+              class="h-12 w-full rounded-xl border border-gray-300 bg-transparent px-4 text-base font-semibold text-gray-800 outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
+            />
+            <p v-if="form.errors.exchange_rate_bs" class="mt-1.5 text-xs text-red-500">{{ form.errors.exchange_rate_bs }}</p>
+
+            <div v-if="Number(form.exchange_rate_bs) > 0" class="mt-3 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:bg-white/5 dark:text-gray-300">
+              Ejemplo: $10,00 = <strong class="text-gray-900 dark:text-white">{{ formatBs(Number(form.exchange_rate_bs) * 10) }}</strong>
             </div>
 
-            <div class="mb-6">
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Tasa del euro (Bs.)
-              </label>
-              <input
-                v-model="form.eur"
-                type="number"
-                step="0.0001"
-                min="0.0001"
-                required
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 outline-none focus:border-brand-300 dark:border-gray-700 dark:text-white/90"
-              />
-              <p v-if="errors.eur" class="mt-1.5 text-xs text-red-500">{{ errors.eur }}</p>
-            </div>
-
-            <div class="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                @click="closeModal"
-                class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                :disabled="saving"
-                class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60"
-              >
-                {{ saving ? 'Guardando…' : 'Guardar' }}
+            <div class="mt-6 flex items-center justify-end gap-3">
+              <button type="button" class="btn-secondary" @click="closeModal">Cancelar</button>
+              <button type="submit" :disabled="form.processing || !form.exchange_rate_bs" class="btn-primary">
+                {{ form.processing ? 'Guardando…' : 'Guardar tasa' }}
               </button>
             </div>
           </form>
@@ -93,83 +62,38 @@
 </template>
 
 <script setup lang="ts">
-import { router, usePage } from '@inertiajs/vue3'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useForm, usePage } from '@inertiajs/vue3'
+import { Pencil, X } from 'lucide-vue-next'
+import MoneyInput from '@/components/forms/MoneyInput.vue'
 import Modal from '../../ui/Modal.vue'
+import { useExchangeRate } from '@/composables/useExchangeRate'
 
-interface TasasCambio {
-  BS: number | string | null
-  EUR: number | string | null
-}
+const { rate, hasRate, formatBs } = useExchangeRate()
 
-const page = usePage<{ tasasCambio?: TasasCambio }>()
-
-const tasas = computed<TasasCambio>(() => page.props.tasasCambio ?? { BS: null, EUR: null })
-
-const formatRate = (value: number | string | null) => {
-  if (value === null || value === undefined) {
-return 'Sin definir'
-}
-
-  const numeric = typeof value === 'string' ? parseFloat(value) : value
-
-  if (Number.isNaN(numeric)) {
-return 'Sin definir'
-}
-
-  return numeric.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-const formattedBs = computed(() => formatRate(tasas.value.BS))
-const formattedEur = computed(() => formatRate(tasas.value.EUR))
+const page = usePage<{ auth: { permissions: string[] } }>()
+const canEdit = computed(() => (page.props.auth?.permissions ?? []).includes('settings.edit'))
 
 const isModalOpen = ref(false)
-const saving = ref(false)
-const errors = reactive<{ bs?: string; eur?: string }>({})
-const form = reactive({ bs: '', eur: '' })
+const form = useForm<{ exchange_rate_bs: number | null }>({ exchange_rate_bs: null })
 
 const openModal = () => {
-  form.bs = tasas.value.BS !== null && tasas.value.BS !== undefined ? String(tasas.value.BS) : ''
-  form.eur = tasas.value.EUR !== null && tasas.value.EUR !== undefined ? String(tasas.value.EUR) : ''
-  errors.bs = undefined
-  errors.eur = undefined
+  if (!canEdit.value) return
+  form.clearErrors()
+  form.exchange_rate_bs = hasRate.value ? rate.value : null
   isModalOpen.value = true
 }
 
 const closeModal = () => {
-  if (saving.value) {
-return
+  if (!form.processing) isModalOpen.value = false
 }
 
-  isModalOpen.value = false
-}
-
-const putTasa = (divisa: 'BS' | 'EUR', tasa: string) =>
-  new Promise<string | undefined>((resolve) => {
-    router.put(
-      `/configuracion/tasas/${divisa}`,
-      { tasa },
-      {
-        preserveScroll: true,
-        preserveState: true,
-        onError: (formErrors) => resolve(formErrors.tasa as string | undefined),
-        onSuccess: () => resolve(undefined),
-      },
-    )
+const submit = () => {
+  form.put('/settings/exchange-rate', {
+    preserveScroll: true,
+    onSuccess: () => {
+      isModalOpen.value = false
+    },
   })
-
-const submit = async () => {
-  saving.value = true
-  errors.bs = undefined
-  errors.eur = undefined
-
-  errors.bs = await putTasa('BS', form.bs)
-  errors.eur = await putTasa('EUR', form.eur)
-
-  saving.value = false
-
-  if (!errors.bs && !errors.eur) {
-    isModalOpen.value = false
-  }
 }
 </script>

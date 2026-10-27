@@ -106,11 +106,16 @@ class PosController extends Controller
         $shift = $this->currentShift($request);
         abort_unless($shift !== null, 422, 'Debes abrir un turno de caja antes de vender.');
 
+        // Venta rápida: el cliente es opcional y se registra como consumidor final
+        $quickSale = $request->boolean('quick_sale');
+        $customerRule = $quickSale ? 'nullable' : 'required';
+
         $validated = $request->validate([
+            'quick_sale' => 'boolean',
             'customer_user_id' => 'nullable|exists:users,id',
-            'customer_name' => ['required', 'string', 'max:255', new PersonName()],
-            'customer_phone' => ['required', 'string', 'max:30', new PhoneNumber()],
-            'customer_email' => ['required', 'email', 'max:255'],
+            'customer_name' => [$customerRule, 'string', 'max:255', new PersonName()],
+            'customer_phone' => [$customerRule, 'string', 'max:30', new PhoneNumber()],
+            'customer_email' => [$customerRule, 'email', 'max:255'],
             'customer_cedula_rif' => ['nullable', 'string', new VenezuelanCedulaRif()],
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -157,9 +162,9 @@ class PosController extends Controller
                 'canal' => 'tienda_fisica',
                 'status' => 'entregado',
                 'delivery_type' => 'retiro_tienda',
-                'customer_name' => $validated['customer_name'],
-                'customer_phone' => $validated['customer_phone'],
-                'customer_email' => $validated['customer_email'],
+                'customer_name' => $validated['customer_name'] ?? 'Consumidor final',
+                'customer_phone' => $validated['customer_phone'] ?? '',
+                'customer_email' => $validated['customer_email'] ?? 'venta-rapida@pos.local',
                 'customer_cedula_rif' => $validated['customer_cedula_rif'] ?? null,
                 'payment_method' => $validated['payments'][0]['method'],
                 'subtotal_usd' => $subtotal,

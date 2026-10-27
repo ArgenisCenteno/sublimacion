@@ -6,6 +6,7 @@ use App\Notifications\ReceiptIssued;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class Receipt extends Model
 {
@@ -58,6 +59,15 @@ class Receipt extends Model
     public function getFormattedNumberAttribute(): string
     {
         return sprintf('REC-%06d', $this->number);
+    }
+
+    /**
+     * Enlace público firmado que codifica el QR del recibo: permite verificar su
+     * autenticidad sin iniciar sesión y no se puede adivinar cambiando el número.
+     */
+    public function verificationUrl(): string
+    {
+        return URL::signedRoute('receipts.verify', ['receipt' => $this->id]);
     }
 
     public static function issueFor(Payment $payment): self

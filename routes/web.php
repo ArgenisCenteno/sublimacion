@@ -26,7 +26,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas publicas
-Route::inertia('/', 'Landing')->name('home');
+Route::get('/', [CatalogController::class, 'home'])->name('home');
 Route::inertia('signin', 'Auth/Signin')->name('signin');
 Route::inertia('404', 'Errors/FourZeroFour')->name('404');
 Route::inertia('privacidad', 'Legal/Privacidad')->name('legal.privacidad');
@@ -35,6 +35,9 @@ Route::inertia('terminos', 'Legal/Terminos')->name('legal.terminos');
 
 Route::get('catalogo', [CatalogController::class, 'index'])->name('catalogo.index');
 Route::get('catalogo/{product:slug}', [CatalogController::class, 'show'])->name('catalogo.show');
+
+// Verificación pública del recibo (QR impreso en el PDF)
+Route::get('recibos/{receipt}/verificar', [ReceiptController::class, 'verify'])->middleware('signed')->name('receipts.verify');
 
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 

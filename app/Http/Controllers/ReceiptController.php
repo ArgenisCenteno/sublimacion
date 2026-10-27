@@ -3,7 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Receipt;
+use App\Models\StoreSetting;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response as HttpResponse;
@@ -14,7 +21,7 @@ class ReceiptController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['verify']);
 
         $this->middleware('can:receipts.view')->only(['index']);
         $this->middleware('can:receipts.annul')->only(['void']);
@@ -46,17 +53,60 @@ class ReceiptController extends Controller
     {
         $this->authorizeAccess($request, $receipt);
 
+        $receipt->load(['order.items', 'payment']);
+        $order = $receipt->order;
+        $settings = StoreSetting::current();
+
         $pdf = Pdf::loadView('receipts.pdf', [
-            'receipt' => $receipt->load('order'),
-            'paymentLabels' => [
-                'pago_movil' => 'Pago móvil',
-                'transferencia' => 'Transferencia',
-                'efectivo' => 'Efectivo en tienda',
-                'paypal' => 'PayPal',
-            ],
-        ]);
+            'receipt' => $receipt,
+            'order' => $order,
+            'store' => $settings,
+            'logo' => $this->logoDataUri($settings->logo_path),
+            'qr' => $this->qrDataUri($receipt->verificationUrl()),
+            'amountPaid' => $order->amountPaid(),
+            'balanceDue' => $order->balanceDue(),
+            'paymentLabels' => self::PAYMENT_LABELS,
+        ])->setPaper('letter')->setOption('isFontSubsettingEnabled', true);
 
         return $pdf->stream("{$receipt->formatted_number}.pdf");
+    }
+
+    /**
+     * Página pública a la que lleva el QR: confirma que el recibo existe y su estado.
+     */
+    public function verify(Receipt $receipt): View
+    {
+        return view('receipts.verify', [
+            'receipt' => $receipt->load('order'),
+            'store' => StoreSetting::current(),
+            'paymentLabels' => self::PAYMENT_LABELS,
+        ]);
+    }
+
+    private const PAYMENT_LABELS = [
+        'pago_movil' => 'Pago móvil',
+        'transferencia' => 'Transferencia',
+        'efectivo' => 'Efectivo en tienda',
+        'paypal' => 'PayPal',
+    ];
+
+    private function qrDataUri(string $text): string
+    {
+        $writer = new Writer(new ImageRenderer(new RendererStyle(240, 1), new SvgImageBackEnd()));
+
+        return 'data:image/svg+xml;base64,'.base64_encode($writer->writeString($text));
+    }
+
+    // DomPDF no lee /storage por URL; se incrusta el logo como data URI
+    private function logoDataUri(?string $path): ?string
+    {
+        if (! $path || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        $mime = Storage::disk('public')->mimeType($path) ?: 'image/png';
+
+        return "data:{$mime};base64,".base64_encode(Storage::disk('public')->get($path));
     }
 
     public function void(Request $request, Receipt $receipt): RedirectResponse

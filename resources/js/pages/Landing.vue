@@ -1,775 +1,616 @@
 <template>
   <Head :title="store.name">
-    <meta name="description" :content="store.slogan || `${store.name} — sublimación de productos y servicios personalizados.`" />
+    <meta
+      name="description"
+      :content="store.slogan || `${store.name} — sublimación personalizada: tazas, franelas, gorras, cojines y mucho más.`"
+    />
   </Head>
 
-  <Transition name="fade">
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-4 bg-white dark:bg-gray-900"
-    >
-      <Sparkles fill="#42AAAB" class="heartbeat h-16 w-16 text-[#42AAAB]" />
-      <p class="text-sm font-medium tracking-wide text-gray-400 dark:text-gray-500">Cargando...</p>
-    </div>
-  </Transition>
-
   <FullScreenLayout>
-    <div class="bg-white dark:bg-gray-900">
+    <div class="min-h-screen bg-white text-gray-800 dark:bg-gray-950 dark:text-gray-100">
       <!-- Navbar -->
       <header
-        class="fixed top-0 z-50 w-full transition-colors duration-300"
-        :class="scrolled ? 'bg-white/95 shadow-theme-sm backdrop-blur-md dark:bg-gray-900/95' : 'bg-transparent'"
+        class="fixed top-0 z-50 w-full transition-all duration-300"
+        :class="
+          scrolled || mobileMenuOpen
+            ? 'border-b border-gray-200/70 bg-white/85 shadow-theme-xs backdrop-blur-xl dark:border-white/10 dark:bg-gray-950/85'
+            : 'bg-transparent'
+        "
       >
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-8">
-          <a href="#inicio" @click="handleNavClick($event, '#inicio')" class="flex items-center gap-2.5">
-            <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-full object-cover" />
-            <span
-              v-else
-              class="flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors duration-300"
-              :class="scrolled ? '' : 'ring-1 ring-white/30'"
-              :style="{ backgroundColor: scrolled ? 'var(--color-primary)' : 'rgba(255,255,255,0.15)' }"
-            >
-              <Building2 class="h-5 w-5" />
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 lg:h-18 lg:px-8">
+          <a href="#inicio" class="flex shrink-0 items-center gap-2.5" @click="handleNavClick($event, '#inicio')">
+            <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-xl object-cover" />
+            <span v-else class="brand-gradient flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-theme-sm">
+              <Palette class="h-5 w-5" />
             </span>
-            <span
-              class="text-lg font-semibold transition-colors duration-300"
-              :class="scrolled ? 'text-gray-800 dark:text-white' : 'text-white'"
-            >
-              {{ store.name }}
-            </span>
+            <span class="text-lg font-bold tracking-tight">{{ store.name }}</span>
           </a>
 
-          <nav class="hidden items-center gap-8 lg:flex">
+          <nav class="hidden items-center gap-1 lg:flex">
             <a
               v-for="link in navLinks"
               :key="link.href"
               :href="link.href"
+              class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
               @click="handleNavClick($event, link.href)"
-              class="text-sm font-medium transition-colors duration-300"
-              :class="scrolled ? 'text-gray-600 hover:text-[var(--color-secondary)] dark:text-gray-300 dark:hover:text-[var(--color-primary)]' : 'text-white/85 hover:text-white'"
             >
               {{ link.label }}
             </a>
           </nav>
 
-          <div class="hidden items-center gap-3 lg:flex">
-            <CartLink :link-class="scrolled ? '' : 'text-white/85 hover:text-white'" />
-            <Link
-              href="/signin"
-              class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-300"
-              :class="
-                scrolled
-                  ? 'border-gray-200 text-gray-700 hover:border-[#42AAAB] hover:text-[#358C8D] dark:border-gray-700 dark:text-gray-300 dark:hover:border-[#42AAAB] dark:hover:text-[#42AAAB]'
-                  : 'border-white/40 text-white hover:bg-white/10'
-              "
-            >
-              Iniciar sesión
-            </Link>
-            <a
-              :href="whatsappHref"
-              target="_blank"
-              rel="noopener"
-              class="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white shadow-theme-xs transition hover:bg-[var(--color-secondary)]"
-            >
-              <WhatsAppIcon class="h-4 w-4" />
-              Escríbenos
-            </a>
-            <ThemeToggler v-if="scrolled" />
+          <div class="flex items-center gap-1.5 sm:gap-2">
             <button
-              v-else
-              class="relative flex h-11 w-11 items-center justify-center rounded-full text-white ring-1 ring-white/30 transition-colors hover:bg-white/10"
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
               aria-label="Cambiar tema"
-              @click.prevent="toggleTheme"
+              @click="toggleTheme"
             >
-              <svg class="hidden dark:block" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.99998 1.5415C10.4142 1.5415 10.75 1.87729 10.75 2.2915V3.5415C10.75 3.95572 10.4142 4.2915 9.99998 4.2915C9.58577 4.2915 9.24998 3.95572 9.24998 3.5415V2.2915C9.24998 1.87729 9.58577 1.5415 9.99998 1.5415ZM10.0009 6.79327C8.22978 6.79327 6.79402 8.22904 6.79402 10.0001C6.79402 11.7712 8.22978 13.207 10.0009 13.207C11.772 13.207 13.2078 11.7712 13.2078 10.0001C13.2078 8.22904 11.772 6.79327 10.0009 6.79327ZM5.29402 10.0001C5.29402 7.40061 7.40135 5.29327 10.0009 5.29327C12.6004 5.29327 14.7078 7.40061 14.7078 10.0001C14.7078 12.5997 12.6004 14.707 10.0009 14.707C7.40135 14.707 5.29402 12.5997 5.29402 10.0001ZM15.9813 5.08035C16.2742 4.78746 16.2742 4.31258 15.9813 4.01969C15.6884 3.7268 15.2135 3.7268 14.9207 4.01969L14.0368 4.90357C13.7439 5.19647 13.7439 5.67134 14.0368 5.96423C14.3297 6.25713 14.8045 6.25713 15.0974 5.96423L15.9813 5.08035ZM18.4577 10.0001C18.4577 10.4143 18.1219 10.7501 17.7077 10.7501H16.4577C16.0435 10.7501 15.7077 10.4143 15.7077 10.0001C15.7077 9.58592 16.0435 9.25013 16.4577 9.25013H17.7077C18.1219 9.25013 18.4577 9.58592 18.4577 10.0001ZM14.9207 15.9806C15.2135 16.2735 15.6884 16.2735 15.9813 15.9806C16.2742 15.6877 16.2742 15.2128 15.9813 14.9199L15.0974 14.036C14.8045 13.7431 14.3297 13.7431 14.0368 14.036C13.7439 14.3289 13.7439 14.8038 14.0368 15.0967L14.9207 15.9806ZM9.99998 15.7088C10.4142 15.7088 10.75 16.0445 10.75 16.4588V17.7088C10.75 18.123 10.4142 18.4588 9.99998 18.4588C9.58577 18.4588 9.24998 18.123 9.24998 17.7088V16.4588C9.24998 16.0445 9.58577 15.7088 9.99998 15.7088ZM5.96356 15.0972C6.25646 14.8043 6.25646 14.3295 5.96356 14.0366C5.67067 13.7437 5.1958 13.7437 4.9029 14.0366L4.01902 14.9204C3.72613 15.2133 3.72613 15.6882 4.01902 15.9811C4.31191 16.274 4.78679 16.274 5.07968 15.9811L5.96356 15.0972ZM4.29224 10.0001C4.29224 10.4143 3.95645 10.7501 3.54224 10.7501H2.29224C1.87802 10.7501 1.54224 10.4143 1.54224 10.0001C1.54224 9.58592 1.87802 9.25013 2.29224 9.25013H3.54224C3.95645 9.25013 4.29224 9.58592 4.29224 10.0001ZM4.9029 5.9637C5.1958 6.25659 5.67067 6.25659 5.96356 5.9637C6.25646 5.6708 6.25646 5.19593 5.96356 4.90303L5.07968 4.01915C4.78679 3.72626 4.31191 3.72626 4.01902 4.01915C3.72613 4.31204 3.72613 4.78692 4.01902 5.07981L4.9029 5.9637Z" fill="currentColor" />
-              </svg>
-              <svg class="dark:hidden" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.4547 11.97L18.1799 12.1611C18.265 11.8383 18.1265 11.4982 17.8401 11.3266C17.5538 11.1551 17.1885 11.1934 16.944 11.4207L17.4547 11.97ZM8.0306 2.5459L8.57989 3.05657C8.80718 2.81209 8.84554 2.44682 8.67398 2.16046C8.50243 1.8741 8.16227 1.73559 7.83948 1.82066L8.0306 2.5459ZM12.9154 13.0035C9.64678 13.0035 6.99707 10.3538 6.99707 7.08524H5.49707C5.49707 11.1823 8.81835 14.5035 12.9154 14.5035V13.0035ZM16.944 11.4207C15.8869 12.4035 14.4721 13.0035 12.9154 13.0035V14.5035C14.8657 14.5035 16.6418 13.7499 17.9654 12.5193L16.944 11.4207ZM16.7295 11.7789C15.9437 14.7607 13.2277 16.9586 10.0003 16.9586V18.4586C13.9257 18.4586 17.2249 15.7853 18.1799 12.1611L16.7295 11.7789ZM10.0003 16.9586C6.15734 16.9586 3.04199 13.8433 3.04199 10.0003H1.54199C1.54199 14.6717 5.32892 18.4586 10.0003 18.4586V16.9586ZM3.04199 10.0003C3.04199 6.77289 5.23988 4.05695 8.22173 3.27114L7.83948 1.82066C4.21532 2.77574 1.54199 6.07486 1.54199 10.0003H3.04199ZM6.99707 7.08524C6.99707 5.52854 7.5971 4.11366 8.57989 3.05657L7.48132 2.03522C6.25073 3.35885 5.49707 5.13487 5.49707 7.08524H6.99707Z" fill="currentColor" />
-              </svg>
+              <Sun class="hidden h-5 w-5 dark:block" />
+              <Moon class="h-5 w-5 dark:hidden" />
+            </button>
+            <CartLink link-class="flex h-10 items-center rounded-xl px-2.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5" />
+            <Link
+              :href="isLoggedIn ? '/dashboard' : '/signin'"
+              class="btn-secondary hidden h-10! px-4! sm:inline-flex"
+            >
+              <UserRound class="h-4 w-4" />
+              {{ isLoggedIn ? 'Mi cuenta' : 'Ingresar' }}
+            </Link>
+            <button
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 lg:hidden"
+              aria-label="Abrir menú"
+              @click="mobileMenuOpen = !mobileMenuOpen"
+            >
+              <X v-if="mobileMenuOpen" class="h-5 w-5" />
+              <Menu v-else class="h-5 w-5" />
             </button>
           </div>
-
-          <button
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="transition-colors duration-300 lg:hidden"
-            :class="scrolled || mobileMenuOpen ? 'text-gray-600 dark:text-gray-300' : 'text-white'"
-            aria-label="Abrir menú"
-          >
-            <X v-if="mobileMenuOpen" class="h-6 w-6" />
-            <Menu v-else class="h-6 w-6" />
-          </button>
         </div>
 
-        <!-- Mobile menu -->
         <Transition name="slide-down">
-          <div v-if="mobileMenuOpen" class="border-t border-gray-100 bg-white px-6 py-4 shadow-theme-sm dark:border-gray-800 dark:bg-gray-900 lg:hidden">
-            <div class="flex flex-col gap-4">
+          <div v-if="mobileMenuOpen" class="border-t border-gray-100 px-5 pb-5 pt-3 dark:border-white/10 lg:hidden">
+            <nav class="flex flex-col">
               <a
                 v-for="link in navLinks"
                 :key="link.href"
                 :href="link.href"
+                class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/5"
                 @click="handleNavClick($event, link.href)"
-                class="text-sm font-medium text-gray-600 dark:text-gray-300"
               >
                 {{ link.label }}
               </a>
-              <Link href="/signin" class="text-sm font-medium text-[#358C8D] dark:text-[#42AAAB]">Iniciar sesión</Link>
-              <a
-                :href="whatsappHref"
-                target="_blank"
-                rel="noopener"
-                class="flex items-center justify-center gap-2 rounded-lg bg-[#42AAAB] px-4 py-2.5 text-sm font-medium text-white"
-              >
+            </nav>
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <Link :href="isLoggedIn ? '/dashboard' : '/signin'" class="btn-secondary">
+                {{ isLoggedIn ? 'Mi cuenta' : 'Ingresar' }}
+              </Link>
+              <a :href="whatsappHref" target="_blank" rel="noopener" class="btn bg-[#25D366] text-white hover:bg-[#1fb857]">
                 <WhatsAppIcon class="h-4 w-4" />
-                Escríbenos por WhatsApp
+                WhatsApp
               </a>
-              <button
-                type="button"
-                class="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-300"
-                @click="toggleTheme"
-              >
-                <Sun class="h-4 w-4 dark:hidden" />
-                <Moon class="hidden h-4 w-4 dark:block" />
-                <span class="dark:hidden">Modo oscuro</span>
-                <span class="hidden dark:inline">Modo claro</span>
-              </button>
             </div>
           </div>
         </Transition>
       </header>
 
       <!-- Hero -->
-      <section id="inicio" class="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-[#42AAAB] to-[#276667]">
-        <div class="absolute right-0 top-0 -z-10 w-full max-w-[250px] opacity-40 xl:max-w-[450px]">
-          <img src="/images/shape/grid-01.svg" alt="" />
-        </div>
-        <div class="absolute bottom-0 left-0 -z-10 w-full max-w-[250px] rotate-180 opacity-40 xl:max-w-[450px]">
-          <img src="/images/shape/grid-01.svg" alt="" />
+      <section id="inicio" class="relative isolate overflow-hidden pt-28 pb-20 lg:pt-36 lg:pb-28">
+        <div class="pointer-events-none absolute inset-0 -z-10">
+          <div class="hero-grid absolute inset-0 opacity-60 dark:opacity-25"></div>
+          <div class="blob absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-brand-400/40 blur-3xl dark:bg-brand-500/25"></div>
+          <div class="blob blob-delay absolute top-10 right-[-6rem] h-[26rem] w-[26rem] rounded-full bg-fuchsia-400/30 blur-3xl dark:bg-fuchsia-500/20"></div>
+          <div class="blob absolute bottom-[-10rem] left-1/3 h-[22rem] w-[22rem] rounded-full bg-amber-300/40 blur-3xl dark:bg-amber-400/15"></div>
         </div>
 
-        <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-20 pt-32 lg:grid-cols-2 lg:px-8 lg:pb-28 lg:pt-40">
+        <div class="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.1fr_1fr] lg:px-8">
           <div>
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/25">
-              <Sparkles class="h-4 w-4" />
-              [Categoría del negocio]
+            <span
+              class="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3.5 py-1.5 text-xs font-semibold text-brand-700 shadow-theme-xs backdrop-blur dark:border-brand-800 dark:bg-white/5 dark:text-brand-300"
+            >
+              <Sparkles class="h-3.5 w-3.5" />
+              Sublimación de alta definición
             </span>
 
-            <div class="relative mt-6">
-              <h1 aria-hidden="true" class="invisible text-title-sm font-semibold sm:text-title-md lg:text-title-lg">
-                {{ heroHeading }}
-              </h1>
-              <h1 class="absolute inset-0 text-title-sm font-semibold text-white sm:text-title-md lg:text-title-lg">
-                {{ typedHeading }}<span class="typewriter-cursor">|</span>
-              </h1>
-            </div>
+            <h1 class="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              Personaliza
+              <span class="text-gradient">lo que imagines</span>
+              <br class="hidden sm:block" />
+              con colores que no se borran.
+            </h1>
 
-            <p class="mt-5 max-w-lg text-base text-white/80 sm:text-lg">
-              En {{ store.name }} ofrecemos [descripción breve de tu servicio o producto] con tecnología
-              moderna, personal capacitado y atención cercana, para darte resultados precisos y a tiempo.
+            <p class="mt-5 max-w-xl text-base text-gray-600 sm:text-lg dark:text-gray-300">
+              {{ store.slogan || 'Tazas, franelas, gorras, cojines, termos y mucho más con tu diseño, tu logo o tu foto favorita. Ideal para regalos, eventos y empresas.' }}
             </p>
-            <div class="mt-8 flex flex-wrap items-center gap-4">
-              <a
-                :href="whatsappHref"
-                target="_blank"
-                rel="noopener"
-                class="flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
-              >
-                <WhatsAppIcon class="h-5 w-5" />
-                Agenda por WhatsApp
-              </a>
-              <a
-                href="#servicios"
-                @click="handleNavClick($event, '#servicios')"
-                class="flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Ver servicios
-                <ArrowRight class="h-4 w-4" />
-              </a>
-            </div>
 
-            <div class="mt-10 flex flex-wrap gap-x-8 gap-y-3">
-              <div class="flex items-center gap-2 text-sm text-white/80">
-                <ShieldCheck class="h-5 w-5 text-white" />
-                Personal certificado
-              </div>
-              <div class="flex items-center gap-2 text-sm text-white/80">
-                <Clock class="h-5 w-5 text-white" />
-                Atención rápida
-              </div>
-              <div class="flex items-center gap-2 text-sm text-white/80">
-                <Lock class="h-5 w-5 text-white" />
-                Confidencialidad
-              </div>
-            </div>
-          </div>
-
-          <!-- Hero visual -->
-          <div class="relative hidden h-[460px] lg:block">
-            <div class="absolute inset-x-6 inset-y-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/15 to-white/0 ring-1 ring-white/20 backdrop-blur-sm">
-              <div class="flex h-full flex-col items-center justify-center gap-3 text-white/70">
-                <ImagePlaceholderIcon class="h-12 w-12" />
-                <p class="text-sm">[Imagen destacada]</p>
-              </div>
-            </div>
-
-            <div class="float-slow absolute left-2 top-4 w-56 rounded-2xl bg-white p-5 shadow-theme-xl dark:bg-gray-800">
-              <div class="flex items-center gap-3">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#42AAAB]/10 dark:bg-[#42AAAB]/20">
-                  <Star class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
-                </span>
-                <div>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">[Servicio 1]</p>
-                  <p class="text-xs text-gray-400">[Detalle breve]</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="float-slow-delayed absolute right-0 top-32 w-60 rounded-2xl bg-white p-5 shadow-theme-xl dark:bg-gray-800">
-              <div class="flex items-center gap-3">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-success-50 dark:bg-success-500/15">
-                  <CircleCheck class="h-5 w-5 text-success-600 dark:text-success-500" />
-                </span>
-                <div>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Resultado listo</p>
-                  <p class="text-xs text-gray-400">Disponible en línea</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="float-slow absolute bottom-6 left-12 w-52 rounded-2xl bg-white p-5 shadow-theme-xl dark:bg-gray-800">
-              <div class="flex items-center gap-3">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#42AAAB]/10 dark:bg-[#42AAAB]/20">
-                  <Zap class="h-5 w-5 text-[#358C8D] dark:text-[#42AAAB]" />
-                </span>
-                <div>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">[Servicio 2]</p>
-                  <p class="text-xs text-gray-400">[Detalle breve]</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <svg class="relative block w-full text-white dark:text-gray-900" viewBox="0 0 1440 60" fill="currentColor" preserveAspectRatio="none">
-          <path d="M0,32 C240,60 480,60 720,40 C960,20 1200,0 1440,20 L1440,60 L0,60 Z" />
-        </svg>
-      </section>
-
-      <!-- Servicios -->
-      <section id="servicios" class="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 lg:px-8">
-        <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-          <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Nuestros servicios</h2>
-          <p class="mt-3 text-gray-500 dark:text-gray-400">
-            Contamos con una amplia gama de servicios pensados para cubrir tus necesidades y las de tu familia.
-          </p>
-        </div>
-
-        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div
-            v-for="(servicio, index) in servicios"
-            :key="servicio.titulo"
-            v-reveal
-            :style="{ transitionDelay: `${index * 60}ms` }"
-            class="reveal group rounded-2xl border border-gray-100 p-6 shadow-theme-xs transition hover:-translate-y-1 hover:shadow-theme-md dark:border-gray-800 dark:hover:shadow-none"
-          >
-            <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#42AAAB]/10 text-[#358C8D] transition group-hover:bg-[#42AAAB] group-hover:text-white dark:bg-[#42AAAB]/15 dark:text-[#42AAAB]">
-              <component :is="servicio.icono" class="h-6 w-6" />
-            </span>
-            <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-gray-100">{{ servicio.titulo }}</h3>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ servicio.descripcion }}</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Cómo funciona -->
-      <section class="bg-gray-50 py-20 dark:bg-white/2">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">¿Cómo funciona?</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Trabajar con nosotros es muy sencillo.</p>
-          </div>
-
-          <div class="mt-12 grid gap-8 sm:grid-cols-3">
-            <div
-              v-for="(paso, index) in pasos"
-              :key="paso.titulo"
-              v-reveal
-              :style="{ transitionDelay: `${index * 100}ms` }"
-              class="reveal text-center"
-            >
-              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#42AAAB] text-lg font-semibold text-white shadow-theme-md">
-                {{ index + 1 }}
-              </div>
-              <h3 class="mt-4 text-base font-semibold text-gray-800 dark:text-gray-100">{{ paso.titulo }}</h3>
-              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ paso.descripcion }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Quiénes somos -->
-      <section id="nosotros" class="relative scroll-mt-24 overflow-hidden py-20">
-        <div class="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-[#42AAAB]/20 blur-3xl dark:bg-[#42AAAB]/10"></div>
-        <div class="pointer-events-none absolute -right-24 bottom-10 -z-10 h-80 w-80 rounded-full bg-blue-light-300/30 blur-3xl dark:bg-blue-light-500/10"></div>
-
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="grid items-center gap-12 lg:grid-cols-2">
-            <div v-reveal class="reveal relative">
-              <div class="aspect-[4/3] overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800">
-                <div class="flex h-full flex-col items-center justify-center gap-3 text-gray-400 dark:text-gray-500">
-                  <ImagePlaceholderIcon class="h-12 w-12" />
-                  <p class="text-sm">[Imagen de la empresa]</p>
-                </div>
-              </div>
-              <div class="absolute -bottom-6 -right-6 hidden max-w-[220px] rounded-2xl bg-[#42AAAB] p-4 shadow-theme-xl sm:block">
-                <div class="flex items-center gap-3">
-                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
-                    <Award class="h-5 w-5 text-white" />
-                  </span>
-                  <p class="text-sm font-medium text-white">Compromiso con la calidad en cada servicio</p>
-                </div>
-              </div>
-            </div>
-
-            <div v-reveal class="reveal">
-              <span class="inline-flex items-center gap-2 rounded-full bg-[#42AAAB]/10 px-4 py-1.5 text-sm font-medium text-[#358C8D] dark:bg-[#42AAAB]/15 dark:text-[#42AAAB]">
-                <Users class="h-4 w-4" />
-                Quiénes somos
-              </span>
-              <h2 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">
-                Comprometidos contigo, en cada paso
-              </h2>
-              <p class="mt-4 text-gray-500 dark:text-gray-400">
-                Somos una empresa enfocada en ofrecer un servicio confiable. Combinamos tecnología
-                moderna con un equipo humano capacitado para acompañarte en cada paso, con calidez y
-                profesionalismo en cada visita.
-              </p>
-              <ul class="mt-6 space-y-3">
-                <li v-for="item in nosotrosPuntos" :key="item" class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300">
-                  <CircleCheck class="mt-0.5 h-5 w-5 shrink-0 text-[#358C8D] dark:text-[#42AAAB]" />
-                  {{ item }}
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div
-            v-reveal
-            class="reveal relative mt-20 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#42AAAB]/8 via-white to-blue-light-50/60 px-6 py-16 ring-1 ring-gray-900/5 dark:from-[#42AAAB]/10 dark:via-gray-900 dark:to-gray-800 dark:ring-white/10 sm:px-10"
-          >
-            <div class="pointer-events-none absolute -left-16 -top-16 -z-10 h-64 w-64 rounded-full bg-[#42AAAB]/20 blur-3xl dark:bg-[#42AAAB]/10"></div>
-            <div class="pointer-events-none absolute -right-16 -bottom-16 -z-10 h-72 w-72 rounded-full bg-blue-light-300/25 blur-3xl dark:bg-blue-light-500/10"></div>
-
-            <div class="mx-auto max-w-2xl text-center">
-              <span class="inline-flex items-center gap-2 rounded-full bg-[#42AAAB]/10 px-4 py-1.5 text-sm font-medium text-[#358C8D] dark:bg-[#42AAAB]/15 dark:text-[#42AAAB]">
-                <Award class="h-4 w-4" />
-                Nuestros diferenciales
-              </span>
-              <h3 class="mt-5 text-title-sm font-semibold text-gray-800 dark:text-white">Por qué elegir {{ store.name }}</h3>
-              <p class="mt-3 text-gray-500 dark:text-gray-400">
-                Cuatro razones por las que nuestros clientes confían en nosotros.
-              </p>
-            </div>
-
-            <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Buscador -->
+            <form class="relative mt-8 max-w-xl" role="search" @submit.prevent="goToSearch()">
               <div
-                v-for="(valor, index) in valores"
-                :key="valor.titulo"
-                v-reveal
-                :style="{ transitionDelay: `${index * 80}ms` }"
-                class="reveal group relative flex flex-col items-center rounded-2xl bg-white/80 p-7 text-center shadow-theme-xs ring-1 ring-gray-900/5 backdrop-blur-sm transition duration-300 hover:-translate-y-1.5 hover:shadow-theme-lg dark:bg-white/3 dark:ring-white/10"
+                class="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg ring-brand-500/20 transition focus-within:border-brand-300 focus-within:ring-4 dark:border-white/10 dark:bg-gray-900"
               >
-                <span class="absolute -top-3 right-6 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-gray-400 shadow-theme-xs ring-1 ring-gray-100 dark:bg-gray-800 dark:text-gray-500 dark:ring-gray-700">
-                  {{ String(index + 1).padStart(2, '0') }}
-                </span>
-                <span
-                  class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-theme-md transition duration-300 group-hover:scale-110"
-                  :class="valor.accent"
-                >
-                  <component :is="valor.icono" class="h-6 w-6" />
-                </span>
-                <h4 class="mt-5 text-sm font-semibold text-gray-800 dark:text-gray-100">{{ valor.titulo }}</h4>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ valor.descripcion }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Galería -->
-      <section id="galeria" class="relative scroll-mt-24 overflow-hidden bg-gray-50 py-20 dark:bg-white/2">
-        <div class="pointer-events-none absolute -left-20 bottom-0 -z-10 h-72 w-72 rounded-full bg-[#42AAAB]/15 blur-3xl dark:bg-[#42AAAB]/10"></div>
-        <div class="pointer-events-none absolute -right-20 top-0 -z-10 h-72 w-72 rounded-full bg-blue-light-300/25 blur-3xl dark:bg-blue-light-500/10"></div>
-
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Galería</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Conoce un poco de nuestras instalaciones y equipo de trabajo.</p>
-          </div>
-
-          <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div
-              v-for="(item, index) in galeria"
-              :key="item.titulo"
-              v-reveal
-              :style="{ transitionDelay: `${index * 70}ms` }"
-              class="reveal group relative aspect-[4/3] overflow-hidden rounded-2xl shadow-theme-xs"
-            >
-              <div class="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                <ImagePlaceholderIcon class="h-10 w-10 text-gray-300 dark:text-gray-600" />
-              </div>
-              <div class="absolute inset-x-0 bottom-0 bg-black/30 px-4 py-2.5 backdrop-blur-sm">
-                <p class="text-sm font-medium text-white">{{ item.titulo }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Consejos -->
-      <section class="relative bg-white py-16 dark:bg-gray-900">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Consejos útiles</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Pequeños hábitos y buenas prácticas que marcan una gran diferencia.</p>
-          </div>
-
-          <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div
-              v-for="(tip, index) in saludTips"
-              :key="tip.titulo"
-              v-reveal
-              :style="{ transitionDelay: `${index * 70}ms` }"
-              class="reveal flex items-start gap-4 rounded-2xl border border-gray-100 p-5 shadow-theme-xs dark:border-gray-800"
-            >
-              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" :class="tip.color">
-                <component :is="tip.icono" class="h-5 w-5" />
-              </span>
-              <div>
-                <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ tip.titulo }}</p>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ tip.texto }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-     
-
-      <!-- FAQ -->
-      <section id="faq" class="scroll-mt-24 bg-gray-50 py-20 dark:bg-white/2">
-        <div class="mx-auto max-w-3xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Preguntas frecuentes</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">Resolvemos las dudas más comunes sobre nuestros servicios.</p>
-          </div>
-
-          <div class="mt-10 space-y-3">
-            <div
-              v-for="(faq, index) in faqs"
-              :key="faq.pregunta"
-              v-reveal
-              :style="{ transitionDelay: `${index * 60}ms` }"
-              class="reveal overflow-hidden rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900"
-            >
-              <button
-                type="button"
-                class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
-                @click="toggleFaq(index)"
-              >
-                <span class="text-sm font-medium text-gray-800 dark:text-gray-100">{{ faq.pregunta }}</span>
-                <ChevronDown
-                  class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 dark:text-gray-500"
-                  :class="{ 'rotate-180': openFaq === index }"
-                />
-              </button>
-              <div v-show="openFaq === index" class="px-5 pb-4 text-sm text-gray-500 dark:text-gray-400">
-                {{ faq.respuesta }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Contacto e Ubicación -->
-      <section id="contacto" class="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-[#1f4f50] to-[#123536] py-24">
-        <div class="absolute right-0 top-0 -z-10 w-full max-w-[250px] opacity-20 xl:max-w-[450px]">
-          <img src="/images/shape/grid-01.svg" alt="" />
-        </div>
-
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-white">Hablemos</h2>
-            <p class="mt-3 text-white/70">Estamos para ayudarte con tus dudas o para agendar tu cita.</p>
-          </div>
-
-          <div class="mt-14 grid gap-8 lg:grid-cols-2">
-            <div v-reveal class="reveal rounded-3xl bg-white/10 p-8 ring-1 ring-white/10 backdrop-blur-sm">
-              <h3 class="text-lg font-semibold text-white">Envíanos un mensaje</h3>
-              <p class="mt-2 text-sm text-white/70">Completa el formulario y te contactaremos a la brevedad.</p>
-
-              <form class="mt-6 space-y-4" @submit.prevent="handleContactSubmit">
+                <Search class="ml-2.5 h-5 w-5 shrink-0 text-gray-400" />
                 <input
-                  v-model="contactForm.nombre"
-                  type="text"
-                  name="nombre"
-                  placeholder="Nombre completo"
-                  required
-                  class="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
+                  ref="searchInput"
+                  v-model="query"
+                  type="search"
+                  placeholder="Busca tazas, franelas, gorras..."
+                  autocomplete="off"
+                  aria-label="Buscar productos"
+                  class="h-11 min-w-0 flex-1 border-0 bg-transparent px-1 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white"
+                  @focus="searchFocused = true"
+                  @blur="onSearchBlur"
+                  @keydown.down.prevent="moveHighlight(1)"
+                  @keydown.up.prevent="moveHighlight(-1)"
+                  @keydown.esc="searchFocused = false"
                 />
-                <div class="grid gap-4 sm:grid-cols-2">
-                  <input
-                    v-model="contactForm.correo"
-                    type="email"
-                    name="correo"
-                    placeholder="Correo electrónico"
-                    required
-                    class="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
-                  />
-                  <input
-                    v-model="contactForm.telefono"
-                    type="tel"
-                    name="telefono"
-                    placeholder="Teléfono"
-                    class="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
-                  />
-                </div>
-                <textarea
-                  v-model="contactForm.mensaje"
-                  name="mensaje"
-                  rows="4"
-                  placeholder="¿En qué podemos ayudarte?"
-                  required
-                  class="w-full resize-none rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
-                ></textarea>
-                <button
-                  type="submit"
-                  class="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
-                >
-                  Enviar mensaje
-                  <ArrowRight class="h-4 w-4" />
+                <button type="submit" class="btn-primary h-11! shrink-0 px-5!">
+                  <span class="hidden sm:inline">Buscar</span>
+                  <ArrowRight class="h-4 w-4 sm:hidden" />
                 </button>
-              </form>
-            </div>
-
-            <div class="flex flex-col gap-8">
-              <div v-reveal class="reveal rounded-3xl bg-white/10 p-8 ring-1 ring-white/10 backdrop-blur-sm">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366]/20">
-                  <WhatsAppIcon class="h-6 w-6 text-[#25D366]" />
-                </span>
-                <h3 class="mt-5 text-lg font-semibold text-white">Escríbenos</h3>
-                <p class="mt-2 text-sm text-white/70">
-                  Respondemos rápido por WhatsApp para resolver tus dudas o agendar tu cita.
-                </p>
-                <a
-                  :href="whatsappHref"
-                  target="_blank"
-                  rel="noopener"
-                  class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
-                >
-                  <WhatsAppIcon class="h-5 w-5" />
-                  {{ whatsappDisplay }}
-                </a>
               </div>
 
-              <div v-reveal class="reveal rounded-3xl bg-white/10 p-8 ring-1 ring-white/10 backdrop-blur-sm">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-                  <Mail class="h-6 w-6 text-white" />
-                </span>
-                <h3 class="mt-5 text-lg font-semibold text-white">Escríbenos por correo</h3>
-                <p class="mt-2 text-sm text-white/70">
-                  Envíanos tus dudas o solicitudes y te responderemos a la brevedad.
-                </p>
-                <a
-                  :href="`mailto:${contactEmail}`"
-                  class="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
+              <Transition name="slide-down">
+                <div
+                  v-if="showSuggestions"
+                  class="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-white/10 dark:bg-gray-900"
                 >
-                  <Mail class="h-5 w-5" />
-                  {{ contactEmail }}
-                </a>
+                  <ul v-if="suggestions.length" class="max-h-80 overflow-y-auto py-1.5">
+                    <li v-for="(item, index) in suggestions" :key="item.id">
+                      <Link
+                        :href="`/catalogo/${item.slug}`"
+                        class="flex items-center gap-3 px-3 py-2.5 transition"
+                        :class="index === highlighted ? 'bg-brand-50 dark:bg-white/5' : 'hover:bg-gray-50 dark:hover:bg-white/5'"
+                        @mouseenter="highlighted = index"
+                      >
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                          <img :src="item.image ? `/storage/${item.image}` : referencePhoto(item.name, item.category)" :alt="item.name" class="h-full w-full object-cover" />
+                        </span>
+                        <span class="min-w-0 flex-1">
+                          <span class="block truncate text-sm font-semibold text-gray-800 dark:text-white">{{ item.name }}</span>
+                          <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ item.category ?? (item.type === 'servicio' ? 'Servicio' : 'Producto') }}</span>
+                        </span>
+                        <span class="shrink-0 text-sm font-bold text-brand-600 dark:text-brand-400">{{ formatUsd(item.price_usd) }}</span>
+                      </Link>
+                    </li>
+                  </ul>
+                  <p v-else class="px-4 py-5 text-sm text-gray-500 dark:text-gray-400">
+                    No encontramos "<strong class="text-gray-700 dark:text-gray-200">{{ query }}</strong>" aún. Pulsa
+                    <strong>Buscar</strong> para ver todo el catálogo o escríbenos: ¡lo hacemos a la medida!
+                  </p>
+                  <button
+                    type="submit"
+                    class="flex w-full items-center justify-between border-t border-gray-100 px-4 py-3 text-sm font-semibold text-brand-700 hover:bg-gray-50 dark:border-white/10 dark:text-brand-300 dark:hover:bg-white/5"
+                  >
+                    Ver todos los resultados para "{{ query }}"
+                    <ArrowRight class="h-4 w-4" />
+                  </button>
+                </div>
+              </Transition>
+            </form>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Populares:</span>
+              <button
+                v-for="chip in popularChips"
+                :key="chip.label"
+                type="button"
+                class="rounded-full border border-gray-200 bg-white/70 px-3 py-1 text-xs font-medium text-gray-600 backdrop-blur transition hover:border-brand-300 hover:text-brand-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:text-brand-300"
+                @click="chip.categoryId ? goToCategory(chip.categoryId) : goToSearch(chip.label)"
+              >
+                {{ chip.label }}
+              </button>
+            </div>
+
+            <dl class="mt-10 grid max-w-lg grid-cols-3 gap-4">
+              <div v-for="stat in stats" :key="stat.label">
+                <dt class="text-xs text-gray-500 dark:text-gray-400">{{ stat.label }}</dt>
+                <dd class="mt-1 text-2xl font-bold tracking-tight">{{ stat.value }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Visual del hero -->
+          <div class="relative mx-auto w-full max-w-lg lg:max-w-none">
+            <div class="grid grid-cols-2 gap-4">
+              <Link
+                v-for="(tile, index) in heroTiles"
+                :key="tile.label"
+                :href="tile.slug ? `/catalogo/${tile.slug}` : `/catalogo?search=${encodeURIComponent(tile.label)}`"
+                class="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-gray-100 shadow-theme-lg ring-1 ring-black/5 transition duration-500 hover:-translate-y-1 dark:bg-gray-800 dark:ring-white/10"
+                :class="index % 2 === 1 ? 'translate-y-8' : ''"
+              >
+                <img
+                  :src="tile.src"
+                  :alt="tile.label"
+                  :fetchpriority="index < 2 ? 'high' : 'auto'"
+                  class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div class="absolute inset-x-3 bottom-3 rounded-2xl bg-white/90 px-3.5 py-2.5 backdrop-blur dark:bg-gray-900/85">
+                  <p class="truncate text-sm font-semibold text-gray-800 dark:text-white">{{ tile.label }}</p>
+                  <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ tile.caption }}</p>
+                </div>
+              </Link>
+            </div>
+
+            <div class="float-slow absolute -left-4 top-1/3 hidden rounded-2xl bg-white px-4 py-3 shadow-theme-xl ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 sm:block">
+              <div class="flex items-center gap-3">
+                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15">
+                  <BadgeCheck class="h-5 w-5" />
+                </span>
+                <div>
+                  <p class="text-sm font-semibold">Boceto gratis</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Antes de imprimir</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Ubicación -->
-      <section id="ubicacion" class="scroll-mt-24 bg-gray-50 py-20 dark:bg-white/2">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div v-reveal class="reveal mx-auto max-w-2xl text-center">
-            <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white">Ubicación</h2>
-            <p class="mt-3 text-gray-500 dark:text-gray-400">{{ direccionEmpresa }}</p>
+      <!-- Beneficios -->
+      <section class="border-y border-gray-100 bg-gray-50/70 dark:border-white/5 dark:bg-white/[0.02]">
+        <div class="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+          <div v-for="perk in perks" :key="perk.title" class="flex items-center gap-3.5">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-600 shadow-theme-xs ring-1 ring-gray-100 dark:bg-gray-900 dark:text-brand-400 dark:ring-white/10">
+              <component :is="perk.icon" class="h-5 w-5" />
+            </span>
+            <div>
+              <p class="text-sm font-semibold">{{ perk.title }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ perk.text }}</p>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div v-reveal class="reveal mt-10 overflow-hidden rounded-3xl shadow-theme-xs">
-            <iframe
-              :src="mapsEmbedSrc"
-              class="h-80 w-full border-0 sm:h-96"
+      <!-- Categorías -->
+      <section id="categorias" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 lg:px-8">
+        <div v-reveal class="reveal flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p class="section-eyebrow">Explora</p>
+            <h2 class="section-title">¿Qué quieres personalizar?</h2>
+          </div>
+          <Link href="/catalogo" class="btn-secondary self-start sm:self-auto">
+            Ver catálogo completo
+            <ArrowRight class="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <component
+            :is="Link"
+            v-for="(cat, index) in categoryCards"
+            :key="cat.key"
+            v-reveal
+            :href="cat.href"
+            :style="{ transitionDelay: `${index * 50}ms` }"
+            class="reveal group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-3xl bg-gray-100 p-5 text-white shadow-theme-xs transition hover:-translate-y-1 hover:shadow-theme-lg dark:bg-gray-800 sm:aspect-square"
+          >
+            <img
+              :src="cat.photo"
+              :alt="cat.name"
               loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
+              class="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-950/85 via-gray-950/25 to-transparent"></div>
+            <span class="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 text-brand-600 shadow-theme-xs backdrop-blur transition duration-300 group-hover:bg-brand-500 group-hover:text-white">
+              <component :is="cat.icon" class="h-5 w-5" />
+            </span>
+            <ArrowUpRight class="absolute right-4 top-4 h-5 w-5 text-white/70 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+            <p class="text-lg font-bold leading-tight">{{ cat.name }}</p>
+            <p class="mt-0.5 text-xs text-white/75">{{ cat.caption }}</p>
+          </component>
+        </div>
+      </section>
+
+      <!-- Productos destacados -->
+      <section id="destacados" class="scroll-mt-24 bg-gray-50/70 py-20 dark:bg-white/[0.02]">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+          <div v-reveal class="reveal flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p class="section-eyebrow">Lo más pedido</p>
+              <h2 class="section-title">Productos destacados</h2>
+            </div>
+            <Link href="/catalogo" class="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400">
+              Ver todos
+              <ArrowRight class="h-4 w-4" />
+            </Link>
           </div>
 
-          <div class="mt-6 text-center">
-            <a
-              :href="mapsHref"
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-2 rounded-lg bg-[#42AAAB] px-5 py-3 text-sm font-medium text-white shadow-theme-xs transition hover:bg-[#358C8D]"
+          <div v-if="featuredProducts.length" class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            <Link
+              v-for="(product, index) in featuredProducts"
+              :key="product.id"
+              v-reveal
+              :href="`/catalogo/${product.slug}`"
+              :style="{ transitionDelay: `${index * 50}ms` }"
+              class="reveal group flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white transition hover:-translate-y-1 hover:shadow-theme-lg dark:border-white/10 dark:bg-gray-900"
             >
-              <Navigation class="h-4 w-4" />
-              Ver ubicación
+              <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <img
+                  :src="product.images[0] ? `/storage/${product.images[0].path}` : referencePhoto(product.name, product.category?.name)"
+                  :alt="product.name"
+                  loading="lazy"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+                <span
+                  v-if="!product.images[0]"
+                  class="absolute bottom-3 right-3 rounded-full bg-gray-900/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur"
+                >
+                  Imagen referencial
+                </span>
+                <div class="absolute left-3 top-3 flex gap-1.5">
+                  <span v-if="product.featured" class="rounded-full bg-amber-400 px-2.5 py-1 text-[11px] font-bold text-amber-950 shadow-theme-xs">Destacado</span>
+                  <span v-if="product.type === 'servicio'" class="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-gray-700 shadow-theme-xs">Servicio</span>
+                </div>
+              </div>
+              <div class="flex flex-1 flex-col p-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ product.category?.name ?? '—' }}</p>
+                <h3 class="mt-1 line-clamp-2 font-semibold leading-snug">{{ product.name }}</h3>
+                <div class="mt-auto flex items-center justify-between pt-3">
+                  <p class="text-lg font-bold text-brand-600 dark:text-brand-400">{{ priceLabel(product) }}</p>
+                  <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition group-hover:bg-brand-500 group-hover:text-white dark:bg-white/5 dark:text-gray-300">
+                    <ShoppingBag class="h-4 w-4" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          <div v-else class="mt-10 rounded-3xl border-2 border-dashed border-gray-200 px-6 py-14 text-center dark:border-white/10">
+            <PackageOpen class="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600" />
+            <p class="mt-3 font-semibold">Pronto verás nuestros productos aquí</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mientras tanto, escríbenos y te cotizamos lo que necesites.</p>
+            <a :href="whatsappHref" target="_blank" rel="noopener" class="btn-primary mt-5">
+              <WhatsAppIcon class="h-4 w-4" />
+              Pedir cotización
             </a>
           </div>
         </div>
       </section>
 
-       <!-- Llamado a la acción -->
-      <section class="relative overflow-hidden bg-gradient-to-r from-[#42AAAB] via-[#2f8f90] to-[#1f4f50] py-14">
-        <div class="mx-auto max-w-3xl px-6 text-center lg:px-8">
-          <span v-reveal class="reveal inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white">
-            <ShieldCheck class="h-4 w-4" />
-            [Aviso destacado]
-          </span>
-          <h2 v-reveal class="reveal mt-5 text-title-sm font-semibold text-white">No esperes más para dar el siguiente paso</h2>
-          <p v-reveal class="reveal mt-3 text-white/80">
-            Actuar a tiempo puede marcar la diferencia. Agenda tu cita y aprovecha nuestros servicios cuando los
-            necesites.
-          </p>
-          <a
+      <!-- Cómo funciona -->
+      <section id="como-funciona" class="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 lg:px-8">
+        <div v-reveal class="reveal mx-auto max-w-2xl text-center">
+          <p class="section-eyebrow">Fácil y rápido</p>
+          <h2 class="section-title">Tu pedido en 4 pasos</h2>
+          <p class="mt-3 text-gray-500 dark:text-gray-400">Tú pones la idea, nosotros nos encargamos del resto.</p>
+        </div>
+
+        <ol class="relative mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="absolute left-0 right-0 top-8 hidden h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-white/10 lg:block"></div>
+          <li
+            v-for="(step, index) in steps"
+            :key="step.title"
             v-reveal
-            :href="whatsappHref"
-            target="_blank"
-            rel="noopener"
-            class="reveal mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#276667] shadow-theme-md transition hover:bg-white/90"
+            :style="{ transitionDelay: `${index * 90}ms` }"
+            class="reveal relative rounded-3xl border border-gray-100 bg-white p-6 dark:border-white/10 dark:bg-gray-900"
           >
-            Agenda tu cita
-            <ArrowRight class="h-4 w-4" />
-          </a>
+            <span class="brand-gradient relative flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-theme-md">
+              <component :is="step.icon" class="h-6 w-6" />
+            </span>
+            <span class="absolute right-6 top-6 text-4xl font-black text-gray-100 dark:text-white/5">0{{ index + 1 }}</span>
+            <h3 class="mt-5 font-semibold">{{ step.title }}</h3>
+            <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">{{ step.text }}</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Empresas / al mayor -->
+      <section class="mx-auto max-w-7xl px-5 lg:px-8">
+        <div v-reveal class="reveal brand-gradient relative isolate overflow-hidden rounded-[2rem] px-6 py-14 text-white sm:px-12 lg:py-16">
+          <div class="pointer-events-none absolute -right-20 -top-20 -z-10 h-80 w-80 rounded-full bg-white/15 blur-2xl"></div>
+          <div class="pointer-events-none absolute -bottom-24 left-10 -z-10 h-72 w-72 rounded-full bg-fuchsia-400/30 blur-3xl"></div>
+          <div class="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
+            <div>
+              <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold ring-1 ring-white/25">
+                <Building2 class="h-3.5 w-3.5" />
+                Empresas, eventos y emprendedores
+              </span>
+              <h2 class="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">¿Pedidos al mayor? Tenemos precios especiales.</h2>
+              <p class="mt-3 max-w-xl text-white/85">
+                Merch corporativo, recuerdos para cumpleaños, bodas, graduaciones y uniformes. Cotiza sin compromiso y
+                recibe tu boceto en tiempo récord.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-3 lg:justify-end">
+              <a :href="whatsappHref" target="_blank" rel="noopener" class="btn bg-white text-gray-900 shadow-theme-md hover:bg-white/90">
+                <WhatsAppIcon class="h-5 w-5 text-[#25D366]" />
+                Cotizar por WhatsApp
+              </a>
+              <Link href="/catalogo" class="btn bg-white/10 text-white ring-1 ring-white/40 hover:bg-white/20">
+                Ver catálogo
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="mx-auto max-w-3xl scroll-mt-24 px-5 py-20 lg:px-8">
+        <div v-reveal class="reveal text-center">
+          <p class="section-eyebrow">Dudas</p>
+          <h2 class="section-title">Preguntas frecuentes</h2>
+        </div>
+
+        <div class="mt-10 space-y-3">
+          <div
+            v-for="(faq, index) in faqs"
+            :key="faq.q"
+            class="overflow-hidden rounded-2xl border bg-white transition dark:bg-gray-900"
+            :class="openFaq === index ? 'border-brand-200 shadow-theme-sm dark:border-brand-800' : 'border-gray-100 dark:border-white/10'"
+          >
+            <button
+              type="button"
+              class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+              :aria-expanded="openFaq === index"
+              @click="openFaq = openFaq === index ? null : index"
+            >
+              <span class="text-sm font-semibold sm:text-base">{{ faq.q }}</span>
+              <span
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition"
+                :class="openFaq === index ? 'rotate-45 bg-brand-500 text-white' : 'bg-gray-100 text-gray-500 dark:bg-white/5'"
+              >
+                <Plus class="h-4 w-4" />
+              </span>
+            </button>
+            <div v-show="openFaq === index" class="px-5 pb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+              {{ faq.a }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contacto -->
+      <section id="contacto" class="scroll-mt-24 bg-gray-50/70 py-20 dark:bg-white/[0.02]">
+        <div class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[1fr_1.1fr] lg:px-8">
+          <div v-reveal class="reveal">
+            <p class="section-eyebrow">Contacto</p>
+            <h2 class="section-title">Hagamos realidad tu idea</h2>
+            <p class="mt-3 text-gray-500 dark:text-gray-400">Cuéntanos qué necesitas y te respondemos con precio y tiempo de entrega.</p>
+
+            <ul class="mt-8 space-y-3">
+              <li v-if="store.social.whatsapp">
+                <a :href="whatsappHref" target="_blank" rel="noopener" class="contact-row">
+                  <span class="contact-icon bg-[#25D366]/10 text-[#25D366]"><WhatsAppIcon class="h-5 w-5" /></span>
+                  <span><span class="contact-label">WhatsApp</span>{{ store.social.whatsapp }}</span>
+                </a>
+              </li>
+              <li v-if="store.contact.email">
+                <a :href="`mailto:${store.contact.email}`" class="contact-row">
+                  <span class="contact-icon"><Mail class="h-5 w-5" /></span>
+                  <span><span class="contact-label">Correo</span>{{ store.contact.email }}</span>
+                </a>
+              </li>
+              <li v-if="store.contact.address">
+                <a :href="mapsHref" target="_blank" rel="noopener" class="contact-row">
+                  <span class="contact-icon"><MapPin class="h-5 w-5" /></span>
+                  <span><span class="contact-label">Dirección</span>{{ store.contact.address }}</span>
+                </a>
+              </li>
+              <li v-if="store.contact.hours">
+                <div class="contact-row">
+                  <span class="contact-icon"><Clock class="h-5 w-5" /></span>
+                  <span><span class="contact-label">Horario</span>{{ store.contact.hours }}</span>
+                </div>
+              </li>
+            </ul>
+
+            <div v-if="hasSocial" class="mt-6 flex items-center gap-2">
+              <a v-if="store.social.instagram" :href="store.social.instagram" target="_blank" rel="noopener" aria-label="Instagram" class="social-pill"><Instagram class="h-5 w-5" /></a>
+              <a v-if="store.social.facebook" :href="store.social.facebook" target="_blank" rel="noopener" aria-label="Facebook" class="social-pill"><Facebook class="h-5 w-5" /></a>
+              <a v-if="store.social.tiktok" :href="store.social.tiktok" target="_blank" rel="noopener" aria-label="TikTok" class="social-pill"><TikTokIcon class="h-5 w-5" /></a>
+            </div>
+          </div>
+
+          <form v-reveal class="reveal rounded-3xl border border-gray-100 bg-white p-6 shadow-theme-sm dark:border-white/10 dark:bg-gray-900 sm:p-8" @submit.prevent="sendContact">
+            <h3 class="text-lg font-semibold">Pide tu cotización</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Te abriremos WhatsApp con el mensaje listo para enviar.</p>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="label" for="c-nombre">Nombre</label>
+                <input id="c-nombre" v-model="contactForm.nombre" required class="field" placeholder="Tu nombre" />
+              </div>
+              <div>
+                <label class="label" for="c-producto">Producto</label>
+                <select id="c-producto" v-model="contactForm.producto" class="field">
+                  <option value="">Selecciona...</option>
+                  <option v-for="cat in categoryCards" :key="cat.key" :value="cat.name">{{ cat.name }}</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div>
+                <label class="label" for="c-cantidad">Cantidad aprox.</label>
+                <input id="c-cantidad" v-model="contactForm.cantidad" type="number" min="1" class="field" placeholder="Ej. 20" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="label" for="c-mensaje">Cuéntanos tu idea</label>
+                <textarea id="c-mensaje" v-model="contactForm.mensaje" rows="4" required class="field h-auto! py-3 resize-none" placeholder="Colores, tamaño, fecha de entrega..."></textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary mt-6 w-full">
+              <Send class="h-4 w-4" />
+              Enviar por WhatsApp
+            </button>
+          </form>
+        </div>
+      </section>
+
       <!-- Footer -->
-      <footer class="bg-gray-900 py-16">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <div class="flex items-center gap-2.5">
-                <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-full object-cover" />
-                <span v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
-                  <Building2 class="h-5 w-5" />
-                </span>
-                <span class="text-lg font-semibold text-white">{{ store.name }}</span>
-              </div>
-              <p class="mt-4 max-w-xs text-sm text-gray-400">
-                {{ store.slogan || 'Empresa comprometida con un servicio confiable y una atención cercana.' }}
-              </p>
-              <div v-if="store.social.instagram || store.social.facebook || store.social.tiktok" class="mt-4 flex items-center gap-3">
-                <a v-if="store.social.instagram" :href="store.social.instagram" target="_blank" rel="noopener" aria-label="Instagram" class="text-gray-400 transition hover:text-white">
-                  <Instagram class="h-5 w-5" />
-                </a>
-                <a v-if="store.social.facebook" :href="store.social.facebook" target="_blank" rel="noopener" aria-label="Facebook" class="text-gray-400 transition hover:text-white">
-                  <Facebook class="h-5 w-5" />
-                </a>
-                <a v-if="store.social.tiktok" :href="store.social.tiktok" target="_blank" rel="noopener" aria-label="TikTok" class="text-gray-400 transition hover:text-white">
-                  <TikTokIcon class="h-5 w-5" />
-                </a>
-              </div>
+      <footer class="border-t border-gray-100 dark:border-white/10">
+        <div class="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-12 lg:flex-row lg:items-start lg:justify-between lg:px-8">
+          <div class="max-w-sm">
+            <div class="flex items-center gap-2.5">
+              <img v-if="store.logoUrl" :src="store.logoUrl" :alt="store.name" class="h-9 w-9 rounded-xl object-cover" />
+              <span v-else class="brand-gradient flex h-9 w-9 items-center justify-center rounded-xl text-white"><Palette class="h-5 w-5" /></span>
+              <span class="text-lg font-bold">{{ store.name }}</span>
             </div>
+            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+              {{ store.slogan || 'Sublimación personalizada con calidad profesional para regalos, eventos y empresas.' }}
+            </p>
+          </div>
 
+          <div class="grid grid-cols-2 gap-10 sm:grid-cols-3">
             <div>
-              <h4 class="text-sm font-semibold uppercase tracking-wide text-gray-300">Enlaces</h4>
-              <ul class="mt-4 space-y-2.5">
-                <li v-for="link in navLinks" :key="link.href">
-                  <a
-                    :href="link.href"
-                    @click="handleNavClick($event, link.href)"
-                    class="text-sm text-gray-400 transition hover:text-white"
-                  >
-                    {{ link.label }}
-                  </a>
-                </li>
+              <h4 class="footer-title">Tienda</h4>
+              <ul class="mt-3 space-y-2 text-sm">
+                <li><Link href="/catalogo" class="footer-link">Catálogo</Link></li>
+                <li><a href="#categorias" class="footer-link" @click="handleNavClick($event, '#categorias')">Categorías</a></li>
+                <li><a href="#destacados" class="footer-link" @click="handleNavClick($event, '#destacados')">Destacados</a></li>
               </ul>
             </div>
-
             <div>
-              <h4 class="text-sm font-semibold uppercase tracking-wide text-gray-300">Servicios</h4>
-              <ul class="mt-4 space-y-2.5">
-                <li v-for="servicio in servicios.slice(0, 5)" :key="servicio.titulo" class="text-sm text-gray-400">
-                  {{ servicio.titulo }}
-                </li>
+              <h4 class="footer-title">Ayuda</h4>
+              <ul class="mt-3 space-y-2 text-sm">
+                <li><a href="#como-funciona" class="footer-link" @click="handleNavClick($event, '#como-funciona')">Cómo funciona</a></li>
+                <li><a href="#faq" class="footer-link" @click="handleNavClick($event, '#faq')">Preguntas frecuentes</a></li>
+                <li><a href="#contacto" class="footer-link" @click="handleNavClick($event, '#contacto')">Contacto</a></li>
               </ul>
             </div>
-
             <div>
-              <h4 class="text-sm font-semibold uppercase tracking-wide text-gray-300">Contacto</h4>
-              <ul class="mt-4 space-y-3">
-                <li>
-                  <a :href="whatsappHref" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-gray-400 transition hover:text-white">
-                    <WhatsAppIcon class="h-4 w-4 shrink-0" />
-                    {{ whatsappDisplay }}
-                  </a>
-                </li>
-                <li class="flex items-start gap-2 text-sm text-gray-400">
-                  <MapPin class="mt-0.5 h-4 w-4 shrink-0" />
-                  {{ direccionEmpresa }}
-                </li>
+              <h4 class="footer-title">Legal</h4>
+              <ul class="mt-3 space-y-2 text-sm">
+                <li><Link href="/privacidad" class="footer-link">Privacidad</Link></li>
+                <li><Link href="/cookies" class="footer-link">Cookies</Link></li>
+                <li><Link href="/terminos" class="footer-link">Términos</Link></li>
               </ul>
             </div>
           </div>
-
-          <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-            <p class="text-xs text-gray-500">&copy; {{ year }} {{ store.name }}. Todos los derechos reservados.</p>
-            <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <Link href="/privacidad" class="text-xs text-gray-500 transition hover:text-white">Privacidad</Link>
-              <Link href="/cookies" class="text-xs text-gray-500 transition hover:text-white">Cookies</Link>
-              <Link href="/terminos" class="text-xs text-gray-500 transition hover:text-white">Términos</Link>
-              <Link href="/signin" class="text-xs text-gray-500 transition hover:text-white">Acceso al sistema</Link>
-            </div>
-          </div>
+        </div>
+        <div class="border-t border-gray-100 py-5 text-center text-xs text-gray-500 dark:border-white/10 dark:text-gray-500">
+          &copy; {{ year }} {{ store.name }}. Todos los derechos reservados.
         </div>
       </footer>
     </div>
 
-    <!-- Floating WhatsApp button -->
+    <!-- Botón flotante de WhatsApp -->
     <a
+      v-if="store.social.whatsapp"
       :href="whatsappHref"
       target="_blank"
       rel="noopener"
       aria-label="Escríbenos por WhatsApp"
-      class="fixed right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-theme-xl transition hover:scale-105"
-      :class="showCookieBanner ? 'bottom-28' : 'bottom-6'"
+      class="fixed right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-theme-xl transition-all hover:scale-105"
+      :class="showCookieBanner ? 'bottom-28 sm:bottom-24' : 'bottom-5'"
     >
-      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#25D366] opacity-40"></span>
-      <WhatsAppIcon class="relative h-7 w-7" />
+      <WhatsAppIcon class="h-7 w-7" />
     </a>
 
     <!-- Aviso de cookies -->
     <Transition name="fade">
       <div
         v-if="showCookieBanner"
-        class="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 px-6 py-4 shadow-theme-lg backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/95"
+        class="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-theme-xl backdrop-blur dark:border-white/10 dark:bg-gray-900/95"
       >
-        <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
+        <div class="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p class="text-sm text-gray-600 dark:text-gray-300">
-            Usamos cookies para mejorar tu experiencia. Al continuar navegando aceptas nuestra
-            <Link href="/cookies" class="font-medium text-[#358C8D] underline dark:text-[#42AAAB]">Política de Cookies</Link>.
+            Usamos cookies para mejorar tu experiencia.
+            <Link href="/cookies" class="font-medium text-brand-600 underline dark:text-brand-400">Más información</Link>
           </p>
-          <div class="flex shrink-0 items-center gap-3">
-            <button
-              type="button"
-              class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-300 dark:border-gray-700 dark:text-gray-300 dark:hover:border-gray-600"
-              @click="rejectCookies"
-            >
-              Rechazar
-            </button>
-            <button
-              type="button"
-              class="rounded-lg bg-[#42AAAB] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#358C8D]"
-              @click="acceptCookies"
-            >
-              Aceptar
-            </button>
+          <div class="flex shrink-0 gap-2">
+            <button type="button" class="btn-secondary h-9! px-4!" @click="setCookieConsent('rejected')">Rechazar</button>
+            <button type="button" class="btn-primary h-9! px-4!" @click="setCookieConsent('accepted')">Aceptar</button>
           </div>
         </div>
       </div>
@@ -778,147 +619,342 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, onMounted, onUnmounted } from 'vue'
-import { Head, Link, usePage } from '@inertiajs/vue3'
+import { computed, h, onMounted, onUnmounted, ref, watch, type Component } from 'vue'
+import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-import ThemeToggler from '@/components/common/ThemeToggler.vue'
+import CartLink from '@/components/common/CartLink.vue'
 import { useTheme } from '@/components/layout/ThemeProvider.vue'
 import {
-  Menu,
-  X,
-  Sparkles,
-  Image as ImagePlaceholderIcon,
   ArrowRight,
-  ShieldCheck,
-  Clock,
-  Lock,
-  Star,
-  CircleCheck,
-  Zap,
-  Layers,
-  Target,
-  Compass,
-  Settings2,
-  ClipboardCheck,
+  ArrowUpRight,
+  BadgeCheck,
   Building2,
-  Award,
-  Users,
-  MapPin,
-  Navigation,
-  Mail,
-  ChevronDown,
-  Sun,
-  Moon,
-  Instagram,
+  Clock,
+  Coffee,
+  CreditCard,
   Facebook,
+  Frame,
+  Gift,
+  GlassWater,
+  Instagram,
+  Sofa,
+  Mail,
+  MapPin,
+  Menu,
+  MessageCircle,
+  Moon,
+  PackageOpen,
+  Palette,
+  PenTool,
+  Plus,
+  Search,
+  Send,
+  Shirt,
+  ShoppingBag,
+  Sparkles,
+  Sun,
+  Truck,
+  UserRound,
+  X,
 } from 'lucide-vue-next'
+
+interface ProductCard {
+  id: number
+  slug: string
+  name: string
+  type: 'producto' | 'servicio'
+  featured: boolean
+  price_usd: string | number
+  category: { id: number; name: string } | null
+  images: Array<{ id: number; path: string }>
+  variants: Array<{ id: number; price_override: string | number | null }>
+}
+
+interface SearchItem {
+  id: number
+  name: string
+  slug: string
+  type: 'producto' | 'servicio'
+  price_usd: string | number
+  category: string | null
+  image: string | null
+}
+
+const props = withDefaults(
+  defineProps<{
+    featuredProducts?: ProductCard[]
+    categories?: Array<{ id: number; name: string; slug: string; products_count: number }>
+    searchIndex?: SearchItem[]
+  }>(),
+  { featuredProducts: () => [], categories: () => [], searchIndex: () => [] },
+)
 
 const { toggleTheme } = useTheme()
 
-// --- Loading (heartbeat) ---
-const isLoading = ref(true)
+const page = usePage<{
+  auth: { user: unknown | null }
+  store: {
+    name: string
+    slogan: string | null
+    logoUrl: string | null
+    social: { instagram: string | null; facebook: string | null; tiktok: string | null; whatsapp: string | null }
+    contact: { email: string | null; address: string | null; hours: string | null }
+  }
+}>()
+const store = computed(() => page.props.store)
+const isLoggedIn = computed(() => !!page.props.auth?.user)
+const hasSocial = computed(() => !!(store.value.social.instagram || store.value.social.facebook || store.value.social.tiktok))
+const year = new Date().getFullYear()
 
-// --- Navbar que se adapta al hacer scroll ---
+// --- Navbar ---
 const scrolled = ref(false)
 const mobileMenuOpen = ref(false)
 const onScroll = () => {
-  scrolled.value = window.scrollY > 40
+  scrolled.value = window.scrollY > 20
 }
 
-// --- Animación de escritura del titular ---
-const heroHeading = 'Comprometidos a ofrecerte resultados en los que puedes confiar'
-const typedHeading = ref('')
-let typingTimeout: ReturnType<typeof setTimeout> | undefined
+const navLinks = [
+  { href: '/catalogo', label: 'Catálogo' },
+  { href: '#categorias', label: 'Categorías' },
+  { href: '#destacados', label: 'Destacados' },
+  { href: '#como-funciona', label: 'Cómo funciona' },
+  { href: '#faq', label: 'FAQ' },
+  { href: '#contacto', label: 'Contacto' },
+]
+
+const handleNavClick = (event: MouseEvent, href: string) => {
+  mobileMenuOpen.value = false
+  if (!href.startsWith('#')) {
+    event.preventDefault()
+    router.visit(href)
+    return
+  }
+  event.preventDefault()
+  document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()
+})
+onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1100)
+// --- Formato de precios ---
+const usd = new Intl.NumberFormat('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const formatUsd = (value: string | number) => `$${usd.format(Number(value))}`
 
-  const startTyping = () => {
-    let i = 0
-    const type = () => {
-      typedHeading.value = heroHeading.slice(0, i)
-      if (i < heroHeading.length) {
-        i++
-        typingTimeout = setTimeout(type, 32)
-      }
-    }
-    type()
+const priceLabel = (product: ProductCard) => {
+  const prices = [
+    Number(product.price_usd),
+    ...product.variants.filter((v) => v.price_override !== null).map((v) => Number(v.price_override)),
+  ]
+  const min = Math.min(...prices)
+  const max = Math.max(...prices)
+  return min === max ? formatUsd(min) : `Desde ${formatUsd(min)}`
+}
+
+// --- Buscador con sugerencias instantáneas ---
+const query = ref('')
+const searchFocused = ref(false)
+const highlighted = ref(-1)
+const searchInput = ref<HTMLInputElement | null>(null)
+
+const normalize = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+
+const suggestions = computed(() => {
+  const terms = normalize(query.value.trim()).split(/\s+/).filter(Boolean)
+  if (!terms.length) return []
+  return props.searchIndex
+    .filter((item) => {
+      const haystack = normalize(`${item.name} ${item.category ?? ''}`)
+      return terms.every((term) => haystack.includes(term))
+    })
+    .slice(0, 6)
+})
+
+const showSuggestions = computed(() => searchFocused.value && query.value.trim().length > 1)
+
+watch(query, () => {
+  highlighted.value = -1
+})
+
+const moveHighlight = (delta: number) => {
+  if (!suggestions.value.length) return
+  const total = suggestions.value.length
+  highlighted.value = (highlighted.value + delta + total) % total
+}
+
+const onSearchBlur = () => {
+  // Deja tiempo a que el clic en una sugerencia se registre antes de cerrar el panel
+  window.setTimeout(() => (searchFocused.value = false), 150)
+}
+
+const goToSearch = (term?: string) => {
+  const selected = term === undefined && highlighted.value >= 0 ? suggestions.value[highlighted.value] : null
+  if (selected) {
+    router.visit(`/catalogo/${selected.slug}`)
+    return
   }
-  setTimeout(startTyping, 1300)
+  const value = (term ?? query.value).trim()
+  router.get('/catalogo', value ? { search: value } : {})
+}
+
+const goToCategory = (id: number) => router.get('/catalogo', { category_id: id })
+
+// --- Contenido ---
+// Fotos de referencia en public/images/landing (Unsplash, licencia libre)
+const fallbackCategories: Array<{ name: string; icon: Component; photo: string; caption: string; keys: string[] }> = [
+  { name: 'Franelas', icon: Shirt, photo: '/images/landing/tee-print.jpg', caption: 'Poliéster full color', keys: ['franela', 'camisa', 'textil', 'ropa', 'shirt', 'chemise'] },
+  { name: 'Tazas', icon: Coffee, photo: '/images/landing/mug.jpg', caption: 'Mágicas, blancas y de colores', keys: ['taza', 'mug', 'jarra'] },
+  { name: 'Gorras', icon: Sparkles, photo: '/images/landing/cap.jpg', caption: 'Tipo trucker y deportivas', keys: ['gorra', 'cap', 'sombrero'] },
+  { name: 'Cojines', icon: Sofa, photo: '/images/landing/pillow.jpg', caption: 'Con tu foto favorita', keys: ['cojin', 'almohada', 'pillow'] },
+  { name: 'Termos', icon: GlassWater, photo: '/images/landing/bottle.jpg', caption: 'Acero y aluminio', keys: ['termo', 'botella', 'vaso', 'tumbler'] },
+  { name: 'Cuadros', icon: Frame, photo: '/images/landing/frame.jpg', caption: 'Placas y fotopaneles', keys: ['cuadro', 'placa', 'foto', 'lamina', 'marco'] },
+  { name: 'Regalos', icon: Gift, photo: '/images/landing/gift.jpg', caption: 'Combos y detalles', keys: ['regalo', 'combo', 'detalle', 'kit'] },
+  { name: 'Diseño', icon: PenTool, photo: '/images/landing/design.jpg', caption: 'Logos y artes a medida', keys: ['diseno', 'servicio', 'logo', 'arte'] },
+]
+
+const categoryCards = computed(() => {
+  if (!props.categories.length) {
+    return fallbackCategories.map((c) => ({ ...c, key: c.name, href: `/catalogo?search=${encodeURIComponent(c.name)}` }))
+  }
+  return props.categories.slice(0, 8).map((cat, index) => {
+    const style = pickCategoryStyle(cat.name, index)
+    return {
+      key: String(cat.id),
+      name: cat.name,
+      href: `/catalogo?category_id=${cat.id}`,
+      caption: cat.products_count === 1 ? '1 producto' : `${cat.products_count} productos`,
+      icon: style.icon,
+      photo: style.photo,
+    }
+  })
 })
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', onScroll)
-  if (typingTimeout) clearTimeout(typingTimeout)
+// Asigna icono y foto coherentes según el nombre (categoría o producto)
+function findCategoryStyle(name: string) {
+  const n = normalize(name)
+  return fallbackCategories.find((c) => c.keys.some((k) => n.includes(k))) ?? null
+}
+function pickCategoryStyle(name: string, index: number) {
+  return findCategoryStyle(name) ?? fallbackCategories[index % fallbackCategories.length]
+}
+
+// Foto para productos que aún no tienen imagen propia
+const referencePhoto = (name: string, category?: string | null) =>
+  (findCategoryStyle(`${name} ${category ?? ''}`) ?? fallbackCategories[0]).photo
+
+const popularChips = computed(() =>
+  props.categories.length
+    ? props.categories.slice(0, 5).map((c) => ({ label: c.name, categoryId: c.id }))
+    : ['Tazas', 'Franelas', 'Termos', 'Gorras', 'Cojines'].map((label) => ({ label, categoryId: null })),
+)
+
+// Primero productos reales con foto; se completa con fotos de referencia hasta 4
+const heroTiles = computed(() => {
+  const fromProducts = props.featuredProducts
+    .filter((p) => p.images[0])
+    .slice(0, 4)
+    .map((p) => ({ label: p.name, caption: priceLabel(p), slug: p.slug as string | null, src: `/storage/${p.images[0].path}` }))
+  const fromPhotos = fallbackCategories
+    .slice(0, 4 - fromProducts.length)
+    .map((c) => ({ label: c.name, caption: c.caption, slug: null as string | null, src: c.photo }))
+  return [...fromProducts, ...fromPhotos]
 })
+
+const stats = computed(() => [
+  { label: 'Productos', value: props.searchIndex.length ? `${props.searchIndex.length}+` : '50+' },
+  { label: 'Categorías', value: props.categories.length || '8' },
+  { label: 'Entrega desde', value: '24 h' },
+])
+
+const perks = [
+  { icon: Sparkles, title: 'Colores HD', text: 'Impresión vibrante y duradera' },
+  { icon: PenTool, title: 'Diseño incluido', text: 'Te enviamos el boceto' },
+  { icon: Truck, title: 'Envíos nacionales', text: 'Delivery y encomiendas' },
+  { icon: CreditCard, title: 'Paga como quieras', text: 'Pago móvil, transferencia o PayPal' },
+]
+
+const steps = [
+  { icon: Search, title: 'Elige tu producto', text: 'Explora el catálogo y escoge lo que quieres personalizar.' },
+  { icon: MessageCircle, title: 'Envía tu diseño', text: 'Comparte tu foto, logo o idea. Si no tienes, lo diseñamos.' },
+  { icon: BadgeCheck, title: 'Aprueba el boceto', text: 'Te mostramos cómo quedará antes de imprimir.' },
+  { icon: ShoppingBag, title: 'Recibe tu pedido', text: 'Retíralo en tienda o te lo enviamos a donde estés.' },
+]
+
+const openFaq = ref<number | null>(0)
+const faqs = [
+  {
+    q: '¿Qué es la sublimación y cuánto dura?',
+    a: 'Es una técnica en la que la tinta se transfiere con calor y pasa a formar parte del material. Por eso no se pela ni se agrieta: con el cuidado adecuado dura años, incluso con lavados frecuentes.',
+  },
+  {
+    q: '¿Puedo enviar mi propio diseño o foto?',
+    a: 'Sí. Recibimos imágenes en JPG, PNG o PDF. Mientras mejor sea la resolución, mejor el resultado. Si no tienes diseño, nuestro equipo te ayuda a crearlo.',
+  },
+  {
+    q: '¿Cuánto tarda mi pedido?',
+    a: 'Los pedidos unitarios suelen estar listos en 24 a 72 horas luego de aprobar el boceto. Para pedidos al mayor te indicamos el tiempo exacto al cotizar.',
+  },
+  {
+    q: '¿Hacen pedidos al mayor o para empresas?',
+    a: 'Sí, manejamos precios especiales por volumen para empresas, eventos, colegios y emprendedores. Escríbenos para cotizar.',
+  },
+  {
+    q: '¿Qué métodos de pago aceptan?',
+    a: 'Aceptamos pago móvil, transferencia bancaria, efectivo y PayPal. Puedes pagar en dólares o en bolívares a la tasa del día.',
+  },
+  {
+    q: '¿Hacen envíos?',
+    a: 'Sí, hacemos delivery en la ciudad y envíos nacionales por encomienda. El costo depende del destino.',
+  },
+]
+
+// --- Contacto vía WhatsApp ---
+const whatsappNumber = computed(() => (store.value.social.whatsapp ?? '').replace(/\D/g, ''))
+const buildWhatsapp = (text: string) => `https://wa.me/${whatsappNumber.value}?text=${encodeURIComponent(text)}`
+const whatsappHref = computed(() => buildWhatsapp(`Hola ${store.value.name}, quisiera cotizar un producto personalizado.`))
+
+const contactForm = ref({ nombre: '', producto: '', cantidad: '', mensaje: '' })
+const sendContact = () => {
+  const f = contactForm.value
+  const lines = [
+    `Hola, soy ${f.nombre}.`,
+    f.producto ? `Me interesa: ${f.producto}` : null,
+    f.cantidad ? `Cantidad aprox.: ${f.cantidad}` : null,
+    f.mensaje,
+  ].filter(Boolean)
+  window.open(buildWhatsapp(lines.join('\n')), '_blank', 'noopener')
+}
+
+const mapsHref = computed(
+  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.value.contact.address ?? '')}`,
+)
 
 // --- Aviso de cookies ---
 const cookieConsentKey = 'company_cookie_consent'
 const showCookieBanner = ref(false)
-
 onMounted(() => {
-  if (!localStorage.getItem(cookieConsentKey)) {
-    showCookieBanner.value = true
+  try {
+    showCookieBanner.value = !localStorage.getItem(cookieConsentKey)
+  } catch {
+    showCookieBanner.value = false
   }
 })
-
-const acceptCookies = () => {
-  localStorage.setItem(cookieConsentKey, 'accepted')
+const setCookieConsent = (value: 'accepted' | 'rejected') => {
+  try {
+    localStorage.setItem(cookieConsentKey, value)
+  } catch {
+    // almacenamiento no disponible: solo ocultamos el aviso
+  }
   showCookieBanner.value = false
 }
 
-const rejectCookies = () => {
-  localStorage.setItem(cookieConsentKey, 'rejected')
-  showCookieBanner.value = false
-}
-
-// --- FAQ ---
-const openFaq = ref<number | null>(null)
-const toggleFaq = (index: number) => {
-  openFaq.value = openFaq.value === index ? null : index
-}
-
-const faqs = [
-  {
-    pregunta: '[Pregunta frecuente 1]',
-    respuesta: '[Respuesta a la pregunta frecuente 1]',
-  },
-  {
-    pregunta: '[Pregunta frecuente 2]',
-    respuesta: '[Respuesta a la pregunta frecuente 2]',
-  },
-  {
-    pregunta: '[Pregunta frecuente 3]',
-    respuesta: '[Respuesta a la pregunta frecuente 3]',
-  },
-  {
-    pregunta: '[Pregunta frecuente 4]',
-    respuesta: '[Respuesta a la pregunta frecuente 4]',
-  },
-  {
-    pregunta: '[Pregunta frecuente 5]',
-    respuesta: '[Respuesta a la pregunta frecuente 5]',
-  },
-  {
-    pregunta: '[Pregunta frecuente 6]',
-    respuesta: '[Respuesta a la pregunta frecuente 6]',
-  },
-]
-
-// --- Scroll suave al navegar por anclas internas ---
-const handleNavClick = (event: MouseEvent, href: string) => {
-  if (!href.startsWith('#')) return
-  event.preventDefault()
-  document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  mobileMenuOpen.value = false
-}
-
-// --- Directiva local: animación al entrar en pantalla ---
+// --- Animación al entrar en pantalla ---
 const vReveal = {
   mounted(el: HTMLElement) {
     const observer = new IntersectionObserver(
@@ -930,196 +966,136 @@ const vReveal = {
           }
         })
       },
-      { threshold: 0.15 }
+      { threshold: 0.12 },
     )
     observer.observe(el)
   },
 }
 
-const year = new Date().getFullYear()
+// --- Iconos de marcas (no incluidos en lucide) ---
+const WhatsAppIcon = (p: { class?: string }) =>
+  h('svg', { class: p.class, viewBox: '0 0 24 24', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' }, [
+    h('path', {
+      d: 'M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.26 4.9L2 22l5.25-1.28A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm0 18.2c-1.6 0-3.1-.43-4.4-1.2l-.32-.19-3.11.76.76-3.03-.2-.31A8.17 8.17 0 0 1 3.84 12c0-4.53 3.68-8.2 8.2-8.2 4.53 0 8.2 3.67 8.2 8.2 0 4.52-3.67 8.2-8.2 8.2Zm4.48-6.14c-.24-.12-1.44-.71-1.67-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.42-1.33-1.66-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01a.9.9 0 0 0-.65.3c-.22.24-.85.83-.85 2.03 0 1.2.87 2.36.99 2.52.12.16 1.71 2.61 4.15 3.66.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28Z',
+    }),
+  ])
 
-const page = usePage<{
-  store: {
-    name: string
-    slogan: string | null
-    logoUrl: string | null
-    social: { instagram: string | null; facebook: string | null; tiktok: string | null; whatsapp: string | null }
-    contact: { email: string | null; address: string | null }
-  }
-}>()
-const store = computed(() => page.props.store)
-const contactEmail = computed(() => store.value.contact.email ?? '')
-
-const whatsappNumber = computed(() => store.value.social.whatsapp ?? '')
-const whatsappMessage = 'Hola, quisiera información sobre sus servicios.'
-const whatsappHref = computed(
-  () => `https://wa.me/${whatsappNumber.value}?text=${encodeURIComponent(whatsappMessage)}`
-)
-const whatsappDisplay = computed(() => store.value.social.whatsapp ?? 'Contáctanos')
-
-const contactForm = ref({ nombre: '', correo: '', telefono: '', mensaje: '' })
-const handleContactSubmit = () => {
-  // Pendiente: conectar con el backend de envío del formulario.
-}
-
-const direccionEmpresa = computed(() => store.value.contact.address ?? '')
-const mapsHref = computed(
-  () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionEmpresa.value)}`
-)
-const mapsEmbedSrc = computed(
-  () => `https://www.google.com/maps?q=${encodeURIComponent(direccionEmpresa.value)}&output=embed`
-)
-
-const navLinks = [
-  { href: '#inicio', label: 'Inicio' },
-  { href: '/catalogo', label: 'Catálogo' },
-  { href: '#servicios', label: 'Servicios' },
-  { href: '#nosotros', label: 'Nosotros' },
-  { href: '#galeria', label: 'Galería' },
-  { href: '#faq', label: 'FAQ' },
-  { href: '#contacto', label: 'Contacto' },
-  { href: '#ubicacion', label: 'Ubicación' }
-
-]
-
-const WhatsAppIcon = (props: { class?: string }) =>
-  h(
-    'svg',
-    { class: props.class, viewBox: '0 0 24 24', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' },
-    [
-      h('path', {
-        d: 'M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.26 4.9L2 22l5.25-1.28A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm0 18.2c-1.6 0-3.1-.43-4.4-1.2l-.32-.19-3.11.76.76-3.03-.2-.31A8.17 8.17 0 0 1 3.84 12c0-4.53 3.68-8.2 8.2-8.2 4.53 0 8.2 3.67 8.2 8.2 0 4.52-3.67 8.2-8.2 8.2Zm4.48-6.14c-.24-.12-1.44-.71-1.67-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.42-1.33-1.66-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01a.9.9 0 0 0-.65.3c-.22.24-.85.83-.85 2.03 0 1.2.87 2.36.99 2.52.12.16 1.71 2.61 4.15 3.66.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28Z',
-      }),
-    ]
-  )
-
-const TikTokIcon = (props: { class?: string }) =>
-  h(
-    'svg',
-    { class: props.class, viewBox: '0 0 24 24', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' },
-    [
-      h('path', {
-        d: 'M16.6 5.82c-.94-.66-1.53-1.72-1.6-2.82h-2.79v13.44c0 1.34-1.09 2.43-2.43 2.43a2.43 2.43 0 1 1 0-4.86c.24 0 .48.03.7.1V11c-.23-.03-.46-.05-.7-.05a5.24 5.24 0 1 0 5.23 5.24V9.13a7.98 7.98 0 0 0 4.6 1.46V7.8a4.85 4.85 0 0 1-2.81-1.98Z',
-      }),
-    ]
-  )
-
-const servicios = [
-  { titulo: '[Servicio 1]', descripcion: '[Descripción del servicio 1]', icono: Star },
-  { titulo: '[Servicio 2]', descripcion: '[Descripción del servicio 2]', icono: Zap },
-  { titulo: '[Servicio 3]', descripcion: '[Descripción del servicio 3]', icono: ShieldCheck },
-  { titulo: '[Servicio 4]', descripcion: '[Descripción del servicio 4]', icono: Layers },
-  { titulo: '[Servicio 5]', descripcion: '[Descripción del servicio 5]', icono: Target },
-  { titulo: '[Servicio 6]', descripcion: '[Descripción del servicio 6]', icono: Compass },
-  { titulo: '[Servicio 7]', descripcion: '[Descripción del servicio 7]', icono: Settings2 },
-  { titulo: '[Servicio 8]', descripcion: '[Descripción del servicio 8]', icono: ClipboardCheck },
-]
-
-const pasos = [
-  { titulo: 'Contáctanos', descripcion: 'Escríbenos por WhatsApp para agendar tu cita o resolver dudas.' },
-  { titulo: '[Paso 2]', descripcion: '[Descripción del paso 2]' },
-  { titulo: '[Paso 3]', descripcion: '[Descripción del paso 3]' },
-]
-
-const nosotrosPuntos = [
-  'Personal certificado y capacitado',
-  'Procesos y equipos validados',
-  'Atención cercana y humana en cada visita',
-]
-
-const valores = [
-  { titulo: 'Personal certificado', descripcion: 'Equipo capacitado y comprometido con la calidad.', icono: ShieldCheck, accent: 'from-[#42AAAB] to-[#276667]' },
-  { titulo: 'Tecnología moderna', descripcion: 'Equipos actualizados para mayor precisión.', icono: Award, accent: 'from-blue-light-400 to-blue-light-600' },
-  { titulo: 'Atención rápida', descripcion: 'Procesos ágiles y resultados a tiempo.', icono: Clock, accent: 'from-warning-400 to-warning-600' },
-  { titulo: 'Confidencialidad', descripcion: 'Tu información está protegida.', icono: Lock, accent: 'from-success-400 to-success-600' },
-]
-
-const galeria = [
-  { titulo: 'Recepción' },
-  { titulo: '[Nuestro trabajo]' },
-  { titulo: '[Nuestras instalaciones]' },
-  { titulo: 'Equipos modernos' },
-  { titulo: 'Nuestro equipo' },
-  { titulo: 'Sede principal' },
-]
-
-const saludTips = [
-  {
-    titulo: '[Consejo 1]',
-    texto: '[Descripción del consejo 1]',
-    icono: Star,
-    color: 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-400',
-  },
-  {
-    titulo: '[Consejo 2]',
-    texto: '[Descripción del consejo 2]',
-    icono: ShieldCheck,
-    color: 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
-  },
-  {
-    titulo: '[Consejo 3]',
-    texto: '[Descripción del consejo 3]',
-    icono: Compass,
-    color: 'bg-[#42AAAB]/10 text-[#358C8D] dark:bg-[#42AAAB]/15 dark:text-[#42AAAB]',
-  },
-  {
-    titulo: '[Consejo 4]',
-    texto: '[Descripción del consejo 4]',
-    icono: Target,
-    color: 'bg-blue-light-50 text-blue-light-600 dark:bg-blue-light-500/15 dark:text-blue-light-400',
-  },
-]
+const TikTokIcon = (p: { class?: string }) =>
+  h('svg', { class: p.class, viewBox: '0 0 24 24', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' }, [
+    h('path', {
+      d: 'M16.6 5.82c-.94-.66-1.53-1.72-1.6-2.82h-2.79v13.44c0 1.34-1.09 2.43-2.43 2.43a2.43 2.43 0 1 1 0-4.86c.24 0 .48.03.7.1V11c-.23-.03-.46-.05-.7-.05a5.24 5.24 0 1 0 5.23 5.24V9.13a7.98 7.98 0 0 0 4.6 1.46V7.8a4.85 4.85 0 0 1-2.81-1.98Z',
+    }),
+  ])
 </script>
 
 <style scoped>
+@reference '../../css/app.css';
+
+.brand-gradient {
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-secondary) 55%, #7c3aed);
+}
+
+.text-gradient {
+  background-image: linear-gradient(90deg, var(--color-primary), #d946ef 55%, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.18) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+}
+
+.section-eyebrow {
+  @apply text-xs font-bold tracking-[0.18em] text-brand-600 uppercase dark:text-brand-400;
+}
+.section-title {
+  @apply mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl;
+}
+
+.field {
+  @apply h-11 w-full rounded-xl border border-gray-300 bg-white px-3.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/15 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white;
+}
+
+.contact-row {
+  @apply flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 text-sm font-medium transition hover:border-brand-200 hover:shadow-theme-sm dark:border-white/10 dark:bg-gray-900;
+}
+.contact-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400;
+}
+.contact-label {
+  @apply block text-xs font-normal text-gray-500 dark:text-gray-400;
+}
+.social-pill {
+  @apply flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:border-brand-300 hover:text-brand-600 dark:border-white/10 dark:bg-gray-900 dark:text-gray-300;
+}
+
+.footer-title {
+  @apply text-xs font-bold tracking-wider text-gray-900 uppercase dark:text-white;
+}
+.footer-link {
+  @apply text-gray-500 transition hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400;
+}
+
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 .float-slow {
   animation: float-slow 5s ease-in-out infinite;
 }
-.float-slow-delayed {
-  animation: float-slow 5s ease-in-out infinite;
-  animation-delay: 1.5s;
-}
 
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  15% { transform: scale(1.3); }
-  30% { transform: scale(1); }
-  45% { transform: scale(1.2); }
-  60% { transform: scale(1); }
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, -20px) scale(1.08);
+  }
 }
-.heartbeat {
-  animation: heartbeat 1.1s ease-in-out infinite;
+.blob {
+  animation: blob 14s ease-in-out infinite;
 }
-
-.typewriter-cursor {
-  animation: blink 0.9s step-end infinite;
-}
-@keyframes blink {
-  50% { opacity: 0; }
+.blob-delay {
+  animation-delay: -7s;
 }
 
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 }
 .reveal-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px);
-  background-size: 16px 16px;
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .float-slow {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
@@ -1128,11 +1104,13 @@ const saludTips = [
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-6px);
 }
 </style>

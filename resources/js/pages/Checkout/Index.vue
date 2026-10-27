@@ -96,6 +96,10 @@
 
                             <div v-if="selectedPaymentAccount" class="mt-4 rounded-xl border border-[#42AAAB]/30 bg-[#42AAAB]/5 p-4 text-sm text-gray-700 dark:text-gray-200">
                                 <p class="font-semibold text-gray-900 dark:text-white">Datos para tu pago</p>
+                                <p v-if="hasRate" class="mt-1 text-gray-600 dark:text-gray-300">
+                                    Monto a pagar: <strong class="text-base text-gray-900 dark:text-white">{{ formatBs(toBs(subtotal)) }}</strong>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">(tasa {{ formatBs(rate) }} por $1)</span>
+                                </p>
                                 <dl class="mt-2 space-y-1">
                                     <div v-if="selectedPaymentAccount.bank" class="flex justify-between gap-3"><dt class="text-gray-500 dark:text-gray-400">Banco</dt><dd>{{ selectedPaymentAccount.bank }}</dd></div>
                                     <div v-if="selectedPaymentAccount.phone" class="flex justify-between gap-3"><dt class="text-gray-500 dark:text-gray-400">Teléfono</dt><dd>{{ selectedPaymentAccount.phone }}</dd></div>
@@ -119,7 +123,7 @@
                             <div class="flex justify-between"><span>Subtotal</span><span>${{ subtotal.toFixed(2) }}</span></div>
                             <div class="flex justify-between"><span>Envío</span><span>$0.00</span></div>
                             <div class="mt-2 flex justify-between text-base font-semibold text-gray-900 dark:text-white">
-                                <span>Total</span><span>${{ subtotal.toFixed(2) }}</span>
+                                <span>Total</span><span class="text-right">{{ formatUsd(subtotal) }}<span v-if="hasRate" class="block text-xs font-medium text-gray-500 dark:text-gray-400">≈ {{ formatBs(toBs(subtotal)) }}</span></span>
                             </div>
                         </div>
                         <button
@@ -141,6 +145,7 @@ import { computed } from 'vue';
 import { useForm, Head, Link, usePage } from '@inertiajs/vue3';
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 import StorefrontHeader from '@/components/storefront/StorefrontHeader.vue';
+import { useExchangeRate } from '@/composables/useExchangeRate';
 
 interface CheckoutItem {
     id: number;
@@ -183,6 +188,8 @@ const form = useForm({
     payment_method: 'pago_movil',
     notes: '',
 });
+
+const { rate, hasRate, toBs, formatUsd, formatBs } = useExchangeRate();
 
 const page = usePage<{ store: { paymentAccounts: { pagoMovil: Record<string, string | null>; transferencia: Record<string, string | null> } } }>();
 

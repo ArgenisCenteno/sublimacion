@@ -10,6 +10,38 @@ use Inertia\Response;
 
 class CatalogController extends Controller
 {
+    public function home(): Response
+    {
+        $products = Product::query()
+            ->where('active', true)
+            ->with(['category:id,name', 'images', 'variants' => fn ($q) => $q->where('active', true)])
+            ->orderBy('featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(60)
+            ->get();
+
+        $categories = Category::query()
+            ->withCount(['products' => fn ($q) => $q->where('active', true)])
+            ->orderByDesc('products_count')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        return Inertia::render('Landing', [
+            'featuredProducts' => $products->take(8)->values(),
+            'categories' => $categories,
+            // Índice ligero para las sugerencias instantáneas del buscador de la portada
+            'searchIndex' => $products->map(fn (Product $p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'slug' => $p->slug,
+                'type' => $p->type,
+                'price_usd' => $p->price_usd,
+                'category' => $p->category?->name,
+                'image' => $p->images->first()?->path,
+            ])->values(),
+        ]);
+    }
+
     public function index(Request $request): Response
     {
         $query = Product::query()

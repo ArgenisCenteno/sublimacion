@@ -36,12 +36,40 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Precio mín.</label>
-                        <input v-model="priceMin" type="number" min="0" step="0.01" :class="inputClass" />
+                        <MoneyInput v-model="priceMin" :class="inputClass" />
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Precio máx.</label>
-                        <input v-model="priceMax" type="number" min="0" step="0.01" :class="inputClass" />
+                        <MoneyInput v-model="priceMax" :class="inputClass" />
                     </div>
+                </div>
+
+                <!-- Resumen de filtros activos -->
+                <div class="mt-6 flex flex-wrap items-center gap-2">
+                    <p class="mr-1 text-sm text-gray-600 dark:text-gray-300">
+                        <strong class="font-semibold text-gray-900 dark:text-white">{{ products.total }}</strong>
+                        {{ products.total === 1 ? 'resultado' : 'resultados' }}{{ activeFilters.length ? ' filtrando por:' : ' en todo el catálogo' }}
+                    </p>
+                    <button
+                        v-for="chip in activeFilters"
+                        :key="chip.key"
+                        type="button"
+                        class="group inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 py-1 pl-3 pr-1.5 text-xs font-medium text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-500/10 dark:text-brand-300"
+                        :title="`Quitar filtro: ${chip.label}`"
+                        @click="chip.clear()"
+                    >
+                        <span class="text-brand-500/80 dark:text-brand-400/80">{{ chip.name }}:</span>
+                        {{ chip.label }}
+                        <span class="flex h-4 w-4 items-center justify-center rounded-full bg-brand-200/70 text-[10px] leading-none group-hover:bg-brand-500 group-hover:text-white dark:bg-brand-500/20">✕</span>
+                    </button>
+                    <button
+                        v-if="activeFilters.length > 1"
+                        type="button"
+                        class="text-xs font-semibold text-gray-500 underline-offset-2 hover:text-gray-800 hover:underline dark:text-gray-400 dark:hover:text-white"
+                        @click="clearAll"
+                    >
+                        Limpiar todo
+                    </button>
                 </div>
 
                 <!-- Grid de productos -->
@@ -74,8 +102,16 @@
                     </Link>
                 </div>
 
-                <div v-if="!products.data.length" class="mt-16 text-center text-gray-500 dark:text-gray-400">
-                    No encontramos productos con esos filtros.
+                <div v-if="!products.data.length" class="mt-6 rounded-3xl border-2 border-dashed border-gray-200 px-6 py-14 text-center dark:border-gray-800">
+                    <p class="text-lg font-semibold text-gray-800 dark:text-white">No encontramos nada con estos filtros</p>
+                    <p v-if="activeFilters.length" class="mx-auto mt-2 max-w-md text-sm text-gray-500 dark:text-gray-400">
+                        Estás buscando
+                        <template v-for="(chip, i) in activeFilters" :key="chip.key">
+                            <strong class="text-gray-700 dark:text-gray-200">{{ chip.name.toLowerCase() }} {{ chip.label }}</strong>{{ i < activeFilters.length - 2 ? ', ' : i === activeFilters.length - 2 ? ' y ' : '' }}
+                        </template>.
+                        Prueba quitando alguno de los filtros de arriba.
+                    </p>
+                    <button v-if="activeFilters.length" type="button" class="btn-primary mt-5" @click="clearAll">Ver todo el catálogo</button>
                 </div>
 
                 <!-- Paginación -->
@@ -102,7 +138,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import MoneyInput from '@/components/forms/MoneyInput.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 import StorefrontHeader from '@/components/storefront/StorefrontHeader.vue';
@@ -123,6 +160,7 @@ interface Props {
         data: ProductCard[];
         current_page: number;
         last_page: number;
+        total: number;
         prev_page_url?: string;
         next_page_url?: string;
     };
@@ -141,8 +179,8 @@ const { products, categories, filters } = defineProps<Props>();
 const search = ref(filters.search ?? '');
 const type = ref(filters.type ?? '');
 const categoryId = ref(filters.category_id ?? '');
-const priceMin = ref(filters.price_min ?? '');
-const priceMax = ref(filters.price_max ?? '');
+const priceMin = ref<string | number | null>(filters.price_min ?? '');
+const priceMax = ref<string | number | null>(filters.price_max ?? '');
 
 let debounceTimeout: number | null = null;
 
@@ -151,13 +189,18 @@ const submitFilters = () => {
     if (search.value.trim().length > 1) params.search = search.value.trim();
     if (type.value) params.type = type.value;
     if (categoryId.value) params.category_id = categoryId.value;
-    if (priceMin.value) params.price_min = priceMin.value;
-    if (priceMax.value) params.price_max = priceMax.value;
+    if (priceMin.value) params.price_min = String(priceMin.value);
+    if (priceMax.value) params.price_max = String(priceMax.value);
 
     router.get('/catalogo', params, { preserveState: true, preserveScroll: true, replace: true });
 };
 
-watch([type, categoryId, priceMin, priceMax], submitFilters);
+watch([type, categoryId], submitFilters);
+
+watch([priceMin, priceMax], () => {
+    if (debounceTimeout !== null) window.clearTimeout(debounceTimeout);
+    debounceTimeout = window.setTimeout(submitFilters, 500);
+});
 
 watch(search, (newSearch) => {
     if (newSearch.trim().length > 1 || newSearch.trim() === '') {
@@ -165,6 +208,47 @@ watch(search, (newSearch) => {
         debounceTimeout = window.setTimeout(submitFilters, 320);
     }
 });
+
+// Explica qué filtros están aplicados para que el usuario entienda los resultados
+const money = new Intl.NumberFormat('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatMoney = (value: string | number) => `$${money.format(Number(value))}`;
+
+const activeFilters = computed(() => {
+    const chips: Array<{ key: string; name: string; label: string; clear: () => void }> = [];
+    const term = search.value.trim();
+    if (term.length > 1) chips.push({ key: 'search', name: 'Búsqueda', label: `"${term}"`, clear: () => (search.value = '') });
+    if (type.value) {
+        chips.push({ key: 'type', name: 'Tipo', label: type.value === 'servicio' ? 'Servicios' : 'Productos', clear: () => (type.value = '') });
+    }
+    if (categoryId.value) {
+        const name = categories.find((c) => String(c.id) === categoryId.value)?.name ?? 'Seleccionada';
+        chips.push({ key: 'category', name: 'Categoría', label: name, clear: () => (categoryId.value = '') });
+    }
+    if (priceMin.value && priceMax.value) {
+        chips.push({
+            key: 'price',
+            name: 'Precio',
+            label: `${formatMoney(priceMin.value)} – ${formatMoney(priceMax.value)}`,
+            clear: () => {
+                priceMin.value = '';
+                priceMax.value = '';
+            },
+        });
+    } else if (priceMin.value) {
+        chips.push({ key: 'price', name: 'Precio', label: `desde ${formatMoney(priceMin.value)}`, clear: () => (priceMin.value = '') });
+    } else if (priceMax.value) {
+        chips.push({ key: 'price', name: 'Precio', label: `hasta ${formatMoney(priceMax.value)}`, clear: () => (priceMax.value = '') });
+    }
+    return chips;
+});
+
+const clearAll = () => {
+    search.value = '';
+    type.value = '';
+    categoryId.value = '';
+    priceMin.value = '';
+    priceMax.value = '';
+};
 
 const priceLabel = (product: ProductCard): string => {
     const overrides = product.variants

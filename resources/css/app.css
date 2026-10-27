@@ -46,18 +46,32 @@ layer(base);
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  /* Paleta de marca derivada del color configurado en la tienda (--color-primary / --color-secondary).
+     indigo se alinea con la marca para que todo el panel use el mismo tono. */
+  --color-brand-25: color-mix(in oklab, var(--color-primary) 4%, white);
+  --color-brand-50: color-mix(in oklab, var(--color-primary) 9%, white);
+  --color-brand-100: color-mix(in oklab, var(--color-primary) 18%, white);
+  --color-brand-200: color-mix(in oklab, var(--color-primary) 32%, white);
+  --color-brand-300: color-mix(in oklab, var(--color-primary) 52%, white);
+  --color-brand-400: color-mix(in oklab, var(--color-primary) 76%, white);
+  --color-brand-500: var(--color-primary);
+  --color-brand-600: var(--color-secondary);
+  --color-brand-700: color-mix(in oklab, var(--color-secondary) 80%, black);
+  --color-brand-800: color-mix(in oklab, var(--color-secondary) 64%, black);
+  --color-brand-900: color-mix(in oklab, var(--color-secondary) 50%, black);
+  --color-brand-950: color-mix(in oklab, var(--color-secondary) 32%, black);
+
+  --color-indigo-50: var(--color-brand-50);
+  --color-indigo-100: var(--color-brand-100);
+  --color-indigo-200: var(--color-brand-200);
+  --color-indigo-300: var(--color-brand-300);
+  --color-indigo-400: var(--color-brand-400);
+  --color-indigo-500: var(--color-brand-500);
+  --color-indigo-600: var(--color-brand-600);
+  --color-indigo-700: var(--color-brand-700);
+  --color-indigo-800: var(--color-brand-800);
+  --color-indigo-900: var(--color-brand-900);
+  --color-indigo-950: var(--color-brand-950);
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -191,6 +205,31 @@ layer(base);
   body {
     @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900 dark:text-gray-100;
   }
+}
+
+/* Botones y etiquetas de formulario compartidos por las páginas del panel */
+@utility btn {
+  @apply inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold whitespace-nowrap transition duration-150 focus-visible:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 focus-visible:ring-brand-500/25 active:scale-[0.98];
+}
+
+@utility btn-secondary {
+  @apply btn border border-gray-300 bg-white text-gray-700 shadow-theme-xs hover:border-brand-300 hover:bg-brand-25 hover:text-brand-700 focus-visible:ring-brand-500/15 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-brand-700 dark:hover:bg-gray-700 dark:hover:text-white;
+}
+
+@utility btn-danger {
+  @apply btn bg-error-600 text-white shadow-theme-xs hover:bg-error-700 focus-visible:ring-error-500/25 active:scale-[0.98];
+}
+
+@utility btn-success {
+  @apply btn bg-success-600 text-white shadow-theme-xs hover:bg-success-700 focus-visible:ring-success-500/25;
+}
+
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300;
 }
 
 @utility menu-item {

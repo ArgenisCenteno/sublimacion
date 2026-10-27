@@ -78,6 +78,11 @@ class HandleInertiaRequests extends Middleware
                 : 0,
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'store' => fn () => $this->storeSettings(),
+            // Tasa USD → Bs vigente (la misma que usa Payment::computeAmounts al registrar pagos)
+            'exchangeRate' => fn () => [
+                'bs' => (float) StoreSetting::current()->exchange_rate_bs,
+                'updatedAt' => StoreSetting::current()->updated_at?->toIso8601String(),
+            ],
         ];
     }
 

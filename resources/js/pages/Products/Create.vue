@@ -33,7 +33,7 @@
 
                     <div>
                         <label class="label">Precio (USD) *</label>
-                        <input v-model="form.price_usd" type="number" min="0" step="0.01" :class="inputClass(form.errors.price_usd)" />
+                        <MoneyInput v-model="form.price_usd" :class="inputClass(form.errors.price_usd)" />
                         <p v-if="form.errors.price_usd" class="mt-1 text-sm text-red-500">{{ form.errors.price_usd }}</p>
                     </div>
 
@@ -84,7 +84,7 @@
                         </div>
                         <div>
                             <label class="label text-xs">Precio override</label>
-                            <input v-model="variant.price_override" type="number" min="0" step="0.01" placeholder="Opcional" :class="inputClass()" />
+                            <MoneyInput v-model="variant.price_override" placeholder="Opcional" :class="inputClass()" />
                         </div>
                         <div v-if="form.type === 'producto'">
                             <label class="label text-xs">Stock</label>
@@ -136,6 +136,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import MoneyInput from '@/components/forms/MoneyInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue';
