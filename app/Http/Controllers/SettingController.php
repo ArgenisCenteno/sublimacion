@@ -27,8 +27,10 @@ class SettingController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'exchange_rate_bs' => 'required|numeric|min:0.0001',
+            'exchange_rate_bs' => 'required|numeric|min:0.01',
         ]);
+
+        $validated['exchange_rate_bs'] = round((float) $validated['exchange_rate_bs'], 2);
 
         StoreSetting::current()->update($validated);
 

@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Route;
 
 // Rutas publicas
 Route::get('/', [CatalogController::class, 'home'])->name('home');
-Route::inertia('signin', 'Auth/Signin')->name('signin');
+// Alias histórico: el login real es /login (Fortify, con middleware guest y mensajes de estado)
+Route::redirect('signin', '/login')->name('signin');
 Route::inertia('404', 'Errors/FourZeroFour')->name('404');
 Route::inertia('privacidad', 'Legal/Privacidad')->name('legal.privacidad');
 Route::inertia('cookies', 'Legal/Cookies')->name('legal.cookies');

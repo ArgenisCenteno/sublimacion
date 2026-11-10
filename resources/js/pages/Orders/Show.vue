@@ -18,13 +18,16 @@
                     <p class="mt-1 text-sm" :class="balanceDue <= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
                         {{ statusLabel }} — saldo pendiente: <strong>{{ formatUsd(balanceDue) }}</strong><span v-if="balanceDue > 0 && hasRate"> ≈ <strong>{{ formatBs(toBs(balanceDue)) }}</strong></span>
                     </p>
+                    <p v-if="balanceDue > 0 && pendingTotal > 0" class="mt-2 text-sm font-medium text-amber-800 dark:text-amber-200">
+                        Tienes {{ formatUsd(pendingTotal) }} en pagos enviados que la tienda está verificando.
+                    </p>
                 </div>
 
                 <section class="mt-8 rounded-2xl border border-gray-200 p-6 dark:border-gray-800">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Datos del pedido</h2>
                     <dl class="mt-4 grid gap-4 sm:grid-cols-2 text-sm">
                         <div><dt class="text-gray-500 dark:text-gray-400">Cliente</dt><dd class="text-gray-900 dark:text-white">{{ order.customer_name }}</dd></div>
-                        <div><dt class="text-gray-500 dark:text-gray-400">Email</dt><dd class="text-gray-900 dark:text-white">{{ order.customer_email }}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Correo electrónico</dt><dd class="text-gray-900 dark:text-white">{{ order.customer_email }}</dd></div>
                         <div><dt class="text-gray-500 dark:text-gray-400">Teléfono</dt><dd class="text-gray-900 dark:text-white">{{ order.customer_phone }}</dd></div>
                         <div v-if="order.customer_cedula_rif"><dt class="text-gray-500 dark:text-gray-400">Cédula/RIF</dt><dd class="text-gray-900 dark:text-white">{{ order.customer_cedula_rif }}</dd></div>
                         <div v-if="order.delivery_type"><dt class="text-gray-500 dark:text-gray-400">Entrega</dt><dd class="text-gray-900 dark:text-white">{{ deliveryLabel }}</dd></div>
@@ -56,14 +59,44 @@
                     </div>
                 </section>
 
-                <section class="mt-6 rounded-2xl border border-gray-200 p-6 dark:border-gray-800">
+                <section ref="paymentsSection" class="mt-6 scroll-mt-6 rounded-2xl border border-gray-200 p-6 dark:border-gray-800">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pagos</h2>
+
+                    <!-- Confirmación / error tras enviar un pago -->
+                    <div
+                        v-if="flash.success"
+                        role="status"
+                        class="mt-4 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
+                    >
+                        <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                        <div>
+                            <p class="font-semibold">¡Pago enviado!</p>
+                            <p>{{ flash.success }} Te avisaremos cuando la tienda lo confirme.</p>
+                        </div>
+                    </div>
+                    <div
+                        v-if="flash.error || hasFormErrors"
+                        role="alert"
+                        class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
+                    >
+                        {{ flash.error || 'No se pudo registrar el pago. Revisa los campos marcados en el formulario.' }}
+                    </div>
 
                     <ul v-if="order.payments.length" class="mt-4 space-y-2">
                         <li v-for="payment in order.payments" :key="payment.id" class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm dark:border-gray-700">
                             <div>
                                 <p class="text-gray-800 dark:text-gray-200">{{ methodLabels[payment.method] ?? payment.method }} — {{ formatUsd(payment.amount_usd) }}<span v-if="payment.amount_bs" class="text-gray-500 dark:text-gray-400"> ({{ formatBs(payment.amount_bs) }} a {{ formatBs(payment.exchange_rate) }})</span></p>
                                 <p v-if="payment.status === 'rechazado'" class="text-xs text-rose-500">Rechazado: {{ payment.rejection_reason }}</p>
+                                <p v-else-if="payment.status === 'pendiente'" class="text-xs text-amber-600 dark:text-amber-400">En revisión por la tienda<span v-if="payment.reference"> · Ref. {{ payment.reference }}</span></p>
+                                <a
+                                    v-if="payment.receipt_path"
+                                    :href="`/storage/${payment.receipt_path}`"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="mr-3 text-xs font-medium text-[#358C8D] hover:underline dark:text-[#42AAAB]"
+                                >
+                                    Ver comprobante enviado
+                                </a>
                                 <a
                                     v-if="payment.receipt"
                                     :href="`/receipts/${payment.receipt.id}/pdf`"
@@ -87,7 +120,15 @@
                     </ul>
                     <p v-else class="mt-4 text-sm text-gray-500 dark:text-gray-400">Aún no se ha registrado ningún pago.</p>
 
-                    <div v-if="balanceDue > 0" class="mt-6">
+                    <!-- Lo enviado ya cubre el saldo: no invitar a pagar de nuevo salvo que el cliente lo pida -->
+                    <div v-if="balanceDue > 0 && pendingCoversBalance && !showPaymentForm" class="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-600 dark:border-gray-700 dark:bg-white/5 dark:text-gray-300">
+                        <p>Tu pago ya fue enviado y está en revisión. No necesitas hacer nada más por ahora.</p>
+                        <button type="button" class="mt-2 font-semibold text-[#358C8D] hover:underline dark:text-[#42AAAB]" @click="showPaymentForm = true">
+                            Registrar otro pago
+                        </button>
+                    </div>
+
+                    <div v-else-if="balanceDue > 0" class="mt-6">
                         <!-- PayPal -->
                         <div v-if="order.payment_method === 'paypal'">
                             <p v-if="!paypalClientId" class="text-sm text-amber-600 dark:text-amber-400">
@@ -139,6 +180,7 @@
                                         <option value="transferencia">Transferencia</option>
                                         <option value="efectivo">Efectivo</option>
                                     </select>
+                                    <p v-if="paymentForm.errors.method" class="mt-1 text-sm text-red-500">{{ paymentForm.errors.method }}</p>
                                 </div>
                                 <div>
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Moneda en que pagaste</label>
@@ -159,15 +201,29 @@
                                 <div>
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Referencia</label>
                                     <input v-model="paymentForm.reference" class="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                                    <p v-if="paymentForm.errors.reference" class="mt-1 text-sm text-red-500">{{ paymentForm.errors.reference }}</p>
                                 </div>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Comprobante</label>
-                                <input type="file" accept="image/jpg,image/jpeg,image/png,image/webp" class="text-sm" @change="onReceiptChange" />
-                                <p v-if="paymentForm.errors.receipt" class="mt-1 text-sm text-red-500">{{ paymentForm.errors.receipt }}</p>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Comprobante<span v-if="receiptRequired" class="text-red-500"> *</span>
+                                </label>
+                                <input
+                                    :key="receiptInputKey"
+                                    type="file"
+                                    accept="image/jpg,image/jpeg,image/png,image/webp"
+                                    class="text-sm text-gray-700 dark:text-gray-300"
+                                    @change="onReceiptChange"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Captura o foto del pago (JPG, PNG o WEBP, máx. 2 MB).</p>
+                                <p v-if="receiptTooBig" class="mt-1 text-sm text-red-500">La imagen supera los 2 MB. Elige una más liviana.</p>
+                                <p v-else-if="paymentForm.errors.receipt" class="mt-1 text-sm text-red-500">{{ paymentForm.errors.receipt }}</p>
                             </div>
-                            <button type="submit" :disabled="paymentForm.processing" class="btn-primary">
-                                {{ paymentForm.processing ? 'Enviando...' : 'Registrar pago' }}
+                            <div v-if="paymentForm.progress" class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                                <div class="h-full bg-[#42AAAB] transition-all" :style="{ width: `${paymentForm.progress.percentage ?? 0}%` }"></div>
+                            </div>
+                            <button type="submit" :disabled="paymentForm.processing || receiptTooBig" class="btn-primary">
+                                {{ paymentForm.processing ? 'Enviando pago...' : 'Registrar pago' }}
                             </button>
                         </form>
                     </div>
@@ -201,6 +257,8 @@ interface OrderPayment {
     exchange_rate: string | number | null;
     status: string;
     rejection_reason: string | null;
+    reference: string | null;
+    receipt_path: string | null;
     receipt: { id: number; formatted_number: string } | null;
 }
 
@@ -267,11 +325,23 @@ const paymentLabel = computed(() => methodLabels[props.order.payment_method] ?? 
 
 const { rate, hasRate, toBs, toUsd, formatUsd, formatBs } = useExchangeRate();
 
+// Pagos enviados por el cliente que aún no verifica la tienda (no descuentan el saldo hasta verificarse)
+const pendingTotal = computed(() =>
+    props.order.payments.filter((p) => p.status === 'pendiente').reduce((sum, p) => sum + Number(p.amount_usd), 0),
+);
+const pendingCoversBalance = computed(() => pendingTotal.value > 0 && pendingTotal.value + 0.005 >= balanceDue.value);
+const showPaymentForm = ref(false);
+// Lo que falta por enviar: saldo menos lo que ya está en revisión (si ya cubre, se sugiere el saldo completo)
+const remainingToSend = computed(() => {
+    const remaining = balanceDue.value - pendingTotal.value;
+    return remaining > 0.005 ? remaining : balanceDue.value;
+});
+
 const initialMethod = (props.order.payment_method === 'paypal' ? 'pago_movil' : props.order.payment_method) as string;
 const defaultCurrency = (method: string): 'USD' | 'BS' => (method === 'pago_movil' || method === 'transferencia' ? 'BS' : 'USD');
 const balanceIn = (currency: 'USD' | 'BS') => {
-    if (currency === 'USD') return balanceDue.value;
-    return hasRate.value ? toBs(balanceDue.value) : null;
+    if (currency === 'USD') return Math.round(remainingToSend.value * 100) / 100;
+    return hasRate.value ? toBs(remainingToSend.value) : null;
 };
 
 // Se precarga con el saldo pendiente en la moneda que corresponde al método
@@ -300,7 +370,15 @@ watch(
 
 const page = usePage<{
     store: { paymentAccounts: { pagoMovil: Record<string, string | null>; transferencia: Record<string, string | null> } };
+    flash?: { success?: string | null; error?: string | null };
 }>();
+
+const flash = computed(() => page.props.flash ?? {});
+const hasFormErrors = computed(() => Object.keys(paymentForm.errors).length > 0);
+const receiptRequired = computed(() => paymentForm.method === 'pago_movil' || paymentForm.method === 'transferencia');
+const receiptTooBig = computed(() => !!paymentForm.receipt && paymentForm.receipt.size > 2 * 1024 * 1024);
+const receiptInputKey = ref(0);
+const paymentsSection = ref<HTMLElement | null>(null);
 
 const accountLabels: Record<string, string> = {
     bank: 'Banco',
@@ -334,15 +412,27 @@ async function copy(text: string, key: string) {
 
 function onReceiptChange(event: Event) {
     paymentForm.receipt = (event.target as HTMLInputElement).files?.[0] ?? null;
+    paymentForm.clearErrors('receipt');
+}
+
+function scrollToPayments() {
+    paymentsSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function submitPayment() {
+    if (receiptTooBig.value) return;
+
     paymentForm.post(`/pedidos/${props.order.id}/payments`, {
         preserveScroll: true,
+        forceFormData: true,
         onSuccess: () => {
             paymentForm.reset('reference', 'receipt');
+            receiptInputKey.value++; // limpia el <input type="file">
+            showPaymentForm.value = false;
             paymentForm.amount = balanceIn(paymentForm.currency);
+            scrollToPayments();
         },
+        onError: () => scrollToPayments(),
     });
 }
 

@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // No se sirve por HTTP: ocuparía la ruta /storage que usa el disco "public"
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
@@ -43,6 +44,10 @@ return [
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
+            // Respaldo: Laravel sirve /storage/{path} desde este disco cuando no existe el
+            // enlace public/storage (falta `php artisan storage:link` o el hosting no permite
+            // symlinks). Si el enlace existe, el servidor web entrega el archivo directamente.
+            'serve' => true,
             'throw' => false,
             'report' => false,
         ],

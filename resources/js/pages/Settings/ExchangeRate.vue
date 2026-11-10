@@ -14,7 +14,7 @@
                     <MoneyInput
                         v-model="form.exchange_rate_bs"
                         currency="BS"
-                        :decimals="4"
+                        :decimals="2"
                         :disabled="!canEdit"
                         :class="inputClass(form.errors.exchange_rate_bs)"
                     />

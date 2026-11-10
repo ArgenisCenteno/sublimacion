@@ -45,18 +45,33 @@
                                 </Link>
                             </td>
                             <td class="px-5 py-4 text-theme-sm sm:px-6">{{ payment.order.customer_name }}</td>
-                            <td class="px-5 py-4 text-theme-sm capitalize sm:px-6">{{ methodLabels[payment.method] ?? payment.method }}</td>
+                            <td class="px-5 py-4 text-theme-sm sm:px-6">
+                                {{ methodLabels[payment.method] ?? payment.method }}
+                                <span v-if="payment.reference" class="block text-theme-xs text-slate-400">Ref. {{ payment.reference }}</span>
+                            </td>
                             <td class="px-5 py-4 text-theme-sm sm:px-6">
                                 ${{ Number(payment.amount_usd).toFixed(2) }}
                                 <span v-if="payment.amount_bs" class="text-slate-400"> ({{ Number(payment.amount_bs).toFixed(2) }} Bs)</span>
                             </td>
                             <td class="px-5 py-4 text-theme-sm sm:px-6">
-                                <a v-if="payment.receipt_path" :href="`/storage/${payment.receipt_path}`" target="_blank" class="text-indigo-600 hover:underline dark:text-indigo-400">
-                                    Ver
-                                </a>
-                                <span v-else class="text-slate-400">—</span>
+                                <button
+                                    v-if="payment.receipt_path"
+                                    type="button"
+                                    class="group flex items-center gap-2 text-left"
+                                    title="Ver comprobante"
+                                    @click="receiptToShow = payment"
+                                >
+                                    <img
+                                        :src="receiptUrl(payment)"
+                                        alt="Comprobante"
+                                        class="h-10 w-10 rounded-lg border border-slate-200 object-cover dark:border-slate-700"
+                                        @error="($event.target as HTMLImageElement).style.display = 'none'"
+                                    />
+                                    <span class="text-indigo-600 group-hover:underline dark:text-indigo-400">Ver comprobante</span>
+                                </button>
+                                <span v-else class="text-slate-400">Sin comprobante</span>
                             </td>
-                            <td class="px-5 py-4 text-theme-sm sm:px-6">{{ payment.paid_at }}</td>
+                            <td class="whitespace-nowrap px-5 py-4 text-theme-sm sm:px-6">{{ formatDateTime(payment.created_at) }}</td>
                             <td class="px-5 py-4 sm:px-6">
                                 <div class="flex items-center gap-2">
                                     <button
@@ -82,6 +97,38 @@
 
             <div v-if="!payments.data.length" class="px-6 py-16 text-center">
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">No hay pagos pendientes</h3>
+            </div>
+        </div>
+
+        <!-- Vista previa del comprobante -->
+        <div v-if="receiptToShow" class="fixed inset-0 z-99999 flex items-center justify-center p-4" @keydown.esc="receiptToShow = null">
+            <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-[6px]" @click="receiptToShow = null"></div>
+            <div class="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-[24px] border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-3 flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Comprobante · Pedido #{{ receiptToShow.order.id }}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            {{ receiptToShow.order.customer_name }} · {{ methodLabels[receiptToShow.method] ?? receiptToShow.method }} ·
+                            ${{ Number(receiptToShow.amount_usd).toFixed(2) }}<span v-if="receiptToShow.amount_bs"> ({{ Number(receiptToShow.amount_bs).toFixed(2) }} Bs)</span>
+                            <span v-if="receiptToShow.reference"> · Ref. {{ receiptToShow.reference }}</span>
+                        </p>
+                    </div>
+                    <button type="button" class="text-2xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" aria-label="Cerrar" @click="receiptToShow = null">&times;</button>
+                </div>
+                <div class="min-h-0 flex-1 overflow-auto rounded-xl bg-slate-100 dark:bg-slate-800">
+                    <img :src="receiptUrl(receiptToShow)" alt="Comprobante de pago" class="mx-auto max-h-[65vh] w-auto object-contain" />
+                </div>
+                <div class="mt-4 flex flex-wrap justify-end gap-3">
+                    <a :href="receiptUrl(receiptToShow)" target="_blank" rel="noopener" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        Abrir en otra pestaña
+                    </a>
+                    <button type="button" class="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:text-rose-300" @click="paymentToReject = receiptToShow; receiptToShow = null">
+                        Rechazar
+                    </button>
+                    <button type="button" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" @click="verify(receiptToShow); receiptToShow = null">
+                        Verificar pago
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -115,8 +162,10 @@ interface PaymentRow {
     method: string;
     amount_usd: string | number;
     amount_bs: string | number | null;
+    reference: string | null;
     receipt_path: string | null;
     paid_at: string;
+    created_at: string;
     order: { id: number; customer_name: string };
 }
 
@@ -134,6 +183,22 @@ const methodLabels: Record<string, string> = {
     transferencia: 'Transferencia',
     efectivo: 'Efectivo',
     paypal: 'PayPal',
+};
+
+const receiptToShow = ref<PaymentRow | null>(null);
+const receiptUrl = (payment: PaymentRow) => `/storage/${payment.receipt_path}`;
+
+const dateTimeFormatter = new Intl.DateTimeFormat('es-VE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+});
+const formatDateTime = (value: string | null) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : dateTimeFormatter.format(date);
 };
 
 const verify = (payment: PaymentRow) => {

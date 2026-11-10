@@ -38,7 +38,7 @@
               id="rate-bs"
               v-model="form.exchange_rate_bs"
               currency="BS"
-              :decimals="4"
+              :decimals="2"
               required
               class="h-12 w-full rounded-xl border border-gray-300 bg-transparent px-4 text-base font-semibold text-gray-800 outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
             />

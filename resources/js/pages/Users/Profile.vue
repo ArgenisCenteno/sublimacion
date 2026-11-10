@@ -55,6 +55,7 @@
                                 <img
                                     v-if="avatarPreview"
                                     :src="avatarPreview"
+                                    @error="avatarPreview = null"
                                     class="h-20 w-20 rounded-3xl border border-white/20 object-cover"
                                 />
 
@@ -514,6 +515,7 @@
                             <img
                                 v-if="avatarPreview"
                                 :src="avatarPreview"
+                                @error="avatarPreview = null"
                                 alt="Vista previa"
                                 class="h-24 w-24 rounded-3xl border border-slate-200 object-cover shadow-sm dark:border-slate-700"
                             />

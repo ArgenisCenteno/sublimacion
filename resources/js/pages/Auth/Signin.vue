@@ -13,12 +13,18 @@
                   Ingrese su correo electrónico y contraseña para iniciar sesión.
                 </p>
               </div>
+              <div
+                v-if="status"
+                class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+              >
+                {{ status }}
+              </div>
               <form @submit.prevent="handleSubmit">
                 <div class="space-y-5">
                   <!-- Email -->
                   <div>
                     <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Email<span class="text-error-500">*</span>
+                      Correo electrónico<span class="text-error-500">*</span>
                     </label>
                     <input
                       v-model="form.email"
@@ -56,6 +62,11 @@
                       </span>
                     </div>
                     <p v-if="form.errors.password" class="mt-1 text-sm text-red-500">{{ form.errors.password }}</p>
+                    <div v-if="canResetPassword !== false" class="mt-2 text-right">
+                      <Link href="/forgot-password" class="text-sm font-medium text-[#358C8D] hover:underline dark:text-[#42AAAB]">
+                        ¿Olvidaste tu contraseña?
+                      </Link>
+                    </div>
                   </div>
                   <!-- Error general -->
                   <p v-if="form.errors.email === 'These credentials do not match our records.'" class="text-sm text-red-500 text-center">
@@ -99,6 +110,12 @@ import { ref } from 'vue'
 import { useForm, Link } from '@inertiajs/vue3'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+
+defineProps<{
+  canResetPassword?: boolean
+  canRegister?: boolean
+  status?: string | null
+}>()
 
 const showPassword = ref(false)
 
